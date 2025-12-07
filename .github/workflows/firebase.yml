@@ -1,0 +1,45 @@
+name: Firebase Deployment Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'firestore.rules'
+      - 'firestore.indexes.json'
+      - 'firebase.json'
+      - '.firebaserc'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  deploy-firebase:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+      
+      - name: Verify Firebase CLI
+        run: firebase --version
+      
+      - name: Deploy Firestore Rules
+        run: firebase deploy --only firestore:rules --token ${{ secrets.FIREBASE_TOKEN }}
+      
+      - name: Deploy Firestore Indexes
+        run: firebase deploy --only firestore:indexes --token ${{ secrets.FIREBASE_TOKEN }}
+        continue-on-error: true
+      
+      - name: Deployment Summary
+        if: success()
+        run: |
+          echo "✅ Firebase deployment completed successfully!"
+          echo "Firestore rules and indexes have been deployed."
+

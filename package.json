@@ -1,0 +1,14 @@
+{
+  "name": "vital-app",
+  "version": "1.0.0",
+  "description": "Vital App - Healthcare application with Firebase and Gemini AI",
+  "scripts": {
+    "firebase:deploy:rules": "firebase deploy --only firestore:rules",
+    "firebase:deploy:indexes": "firebase deploy --only firestore:indexes"
+  },
+  "devDependencies": {
+    "firebase-tools": "^13.0.0"
+  },
+  "private": true
+}
+
