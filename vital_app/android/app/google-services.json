@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "902740049392",
+    "project_id": "vital-ai-536a5",
+    "storage_bucket": "vital-ai-536a5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:902740049392:android:8e18bbeaa6639e480ab135",
+        "android_client_info": {
+          "package_name": "com.example.vital_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "902740049392-99fm3uqqm1ok2f3pp1p8kd17n3bbp138.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-dsQvqCC8ecx_TE2Mf0bgp6Gkk-OK8Zs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "902740049392-99fm3uqqm1ok2f3pp1p8kd17n3bbp138.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
