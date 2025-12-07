@@ -4,9 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'screens/user_type_selection_screen.dart';
-import 'screens/clinician_profile_screen.dart';
-import 'screens/patient_profile_screen.dart';
-import 'screens/admin_dashboard_screen.dart';
 import 'services/auth_service.dart';
 
 void main() async {

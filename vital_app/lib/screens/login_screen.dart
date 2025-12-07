@@ -85,8 +85,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // Verify profile exists (if not, user might be in wrong collection)
         if (profile == null) {
-          throw 'No ${expectedType} account found with this email. Please check your user type selection.';
+          throw 'No $expectedType account found with this email. Please check your user type selection.';
         }
+
+        // Check if widget is still mounted before using context
+        if (!mounted) return;
 
         // Navigate to appropriate profile screen
         if (widget.userType == UserType.clinician) {

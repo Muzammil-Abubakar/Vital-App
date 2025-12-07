@@ -79,10 +79,14 @@ class GeminiService {
       }
 
       // Return the error message
+      // If it's a string error message, throw it as-is
       if (e is String) {
-        throw e;
+        // ignore: use_rethrow_when_possible
+        // Can't use rethrow for String types, only for Exception types
+        throw e; // ignore: use_rethrow_when_possible
       }
 
+      // For exceptions, convert to user-friendly message
       throw 'An error occurred: ${e.toString()}';
     }
   }
