@@ -3,8 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
-import 'screens/login_screen.dart';
-import 'screens/profile_screen.dart';
+import 'screens/user_type_selection_screen.dart';
+import 'screens/clinician_profile_screen.dart';
+import 'screens/patient_profile_screen.dart';
+import 'screens/admin_dashboard_screen.dart';
 import 'services/auth_service.dart';
 
 void main() async {
@@ -57,12 +59,11 @@ class AuthWrapper extends StatelessWidget {
           );
         }
 
-        // If user is logged in, show profile screen, otherwise show login screen
-        if (snapshot.hasData && snapshot.data != null) {
-          return const ProfileScreen();
-        } else {
-          return const LoginScreen();
-        }
+        // If user is logged in, we need to check their type and show appropriate screen
+        // For now, show user type selection - the login flow will handle navigation
+        // Note: In a production app, you'd store the user type in shared preferences
+        // or check it from Firestore to auto-navigate to the correct screen
+        return const UserTypeSelectionScreen();
       },
     );
   }

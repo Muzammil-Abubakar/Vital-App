@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import 'user_type_selection_screen.dart';
+import 'clinician_profile_screen.dart';
+import 'patient_profile_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+  final UserType userType;
+  
+  const SignUpScreen({
+    super.key,
+    required this.userType,
+  });
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -55,11 +63,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
         return;
       }
 
+      final userType = widget.userType == UserType.clinician ? 'clinician' : 'patient';
+      
       await _authService.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
         name: _nameController.text.trim(),
         age: age,
+        userType: userType,
       );
 
       if (mounted) {
@@ -69,7 +80,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.of(context).pop();
+        
+        // Navigate to appropriate profile screen
+        if (widget.userType == UserType.clinician) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const ClinicianProfileScreen(),
+            ),
+            (route) => false,
+          );
+        } else {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const PatientProfileScreen(),
+            ),
+            (route) => false,
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -89,11 +116,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
+  String _getUserTypeTitle() {
+    return widget.userType == UserType.clinician 
+        ? 'Clinician Sign Up' 
+        : 'Patient Sign Up';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign Up'),
+        title: Text(_getUserTypeTitle()),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: SafeArea(
@@ -282,6 +315,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   onPressed: () => Navigator.of(context).pop(),
                   child: const Text('Already have an account? Log In'),
                 ),
+                
+                // Back to user type selection
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => const UserTypeSelectionScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Back to User Type Selection'),
+                ),
               ],
             ),
           ),
@@ -290,4 +335,3 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 }
-

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import 'login_screen.dart';
 import 'chat_screen.dart';
+import 'user_type_selection_screen.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class PatientProfileScreen extends StatefulWidget {
+  const PatientProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<PatientProfileScreen> createState() => _PatientProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _PatientProfileScreenState extends State<PatientProfileScreen> {
   final _authService = AuthService();
   Map<String, dynamic>? _userProfile;
   bool _isLoading = true;
@@ -34,7 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     try {
-      final profile = await _authService.getUserProfile(user.uid);
+      final profile = await _authService.getUserProfile(user.uid, 'patient');
       setState(() {
         _userProfile = profile;
         _isLoading = false;
@@ -52,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await _authService.signOut();
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          MaterialPageRoute(builder: (context) => const UserTypeSelectionScreen()),
           (route) => false,
         );
       }
@@ -72,8 +72,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Patient Profile'),
+        backgroundColor: Colors.green,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -145,9 +145,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Center(
                               child: CircleAvatar(
                                 radius: 60,
-                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                backgroundColor: Colors.green,
                                 child: Text(
-                                  _userProfile!['name']?[0].toUpperCase() ?? 'U',
+                                  _userProfile!['name']?[0].toUpperCase() ?? 'P',
                                   style: const TextStyle(
                                     fontSize: 48,
                                     color: Colors.white,
@@ -169,11 +169,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      'Profile Information',
-                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.person,
+                                          color: Colors.green,
+                                          size: 24,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Patient Information',
+                                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                      ],
                                     ),
                                     const SizedBox(height: 24),
                                     
@@ -206,13 +216,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     const SizedBox(height: 20),
                                     
-                                    // User ID
+                                    // User Type
                                     _buildProfileItem(
                                       context,
                                       icon: Icons.badge,
-                                      label: 'User ID',
-                                      value: _authService.currentUser?.uid ?? 'Not available',
-                                      isMonospace: true,
+                                      label: 'User Type',
+                                      value: 'Patient',
                                     ),
                                   ],
                                 ),
@@ -239,6 +248,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -269,14 +280,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required IconData icon,
     required String label,
     required String value,
-    bool isMonospace = false,
   }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(
           icon,
-          color: Theme.of(context).colorScheme.primary,
+          color: Colors.green,
           size: 24,
         ),
         const SizedBox(width: 16),
@@ -295,10 +305,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 4),
               Text(
                 value,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  fontFamily: isMonospace ? 'monospace' : null,
                 ),
               ),
             ],

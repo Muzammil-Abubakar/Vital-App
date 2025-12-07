@@ -14,6 +14,7 @@ class AuthService {
     required String password,
     required String name,
     required int age,
+    required String userType, // 'clinician' or 'patient'
   }) async {
     try {
       // Create user account
@@ -22,8 +23,9 @@ class AuthService {
         password: password,
       );
 
-      // Store user profile data in Firestore
-      await _firestore.collection('users').doc(userCredential.user?.uid).set({
+      // Store user profile data in Firestore - use separate collections
+      final collectionName = userType == 'clinician' ? 'clinicians' : 'patients';
+      await _firestore.collection(collectionName).doc(userCredential.user?.uid).set({
         'name': name,
         'age': age,
         'email': email,
@@ -56,9 +58,11 @@ class AuthService {
   }
 
   // Get user profile data from Firestore
-  Future<Map<String, dynamic>?> getUserProfile(String uid) async {
+  // userType should be 'clinician' or 'patient'
+  Future<Map<String, dynamic>?> getUserProfile(String uid, String userType) async {
     try {
-      DocumentSnapshot doc = await _firestore.collection('users').doc(uid).get();
+      final collectionName = userType == 'clinician' ? 'clinicians' : 'patients';
+      DocumentSnapshot doc = await _firestore.collection(collectionName).doc(uid).get();
       if (doc.exists) {
         return doc.data() as Map<String, dynamic>?;
       }
