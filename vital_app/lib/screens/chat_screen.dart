@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/gemini_service.dart';
+import '../services/auth_service.dart';
+import 'complete_profile_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -11,9 +13,18 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final _textController = TextEditingController();
   final _geminiService = GeminiService();
+  final _authService = AuthService();
   String? _lastResponse;
   bool _isLoading = false;
+  bool _checkingProfile = true;
+  bool _isProfiled = false;
   String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkProfileStatus();
+  }
 
   @override
   void dispose() {
@@ -21,7 +32,48 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+  Future<void> _checkProfileStatus() async {
+    final user = _authService.currentUser;
+    if (user == null) {
+      setState(() {
+        _checkingProfile = false;
+        _errorMessage = 'No user logged in';
+      });
+      return;
+    }
+
+    try {
+      final profile = await _authService.getUserProfile(user.uid, 'patient');
+      if (profile != null) {
+        setState(() {
+          _isProfiled = profile['profiled'] == true;
+          _checkingProfile = false;
+        });
+      } else {
+        setState(() {
+          _checkingProfile = false;
+          _isProfiled = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _checkingProfile = false;
+        _errorMessage = 'Error checking profile: $e';
+      });
+    }
+  }
+
   Future<void> _sendMessage() async {
+    if (!_isProfiled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please complete your profile to use the chatbot'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     final message = _textController.text.trim();
 
     if (message.isEmpty) {
@@ -70,7 +122,66 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16.0),
-                child: _isLoading
+                child: _checkingProfile
+                    ? const Center(child: CircularProgressIndicator())
+                    : !_isProfiled
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.lock_outline,
+                              size: 64,
+                              color: Colors.orange[300],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Complete Your Profile',
+                              style: TextStyle(
+                                color: Colors.orange[700],
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24.0,
+                              ),
+                              child: Text(
+                                'You need to complete your health profile to use the chatbot feature.',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const CompleteProfileScreen(),
+                                      ),
+                                    )
+                                    .then((_) {
+                                      _checkProfileStatus();
+                                    });
+                              },
+                              icon: const Icon(Icons.person_add),
+                              label: const Text('Complete Profile'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orange,
+                                foregroundColor: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : _isLoading
                     ? const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,

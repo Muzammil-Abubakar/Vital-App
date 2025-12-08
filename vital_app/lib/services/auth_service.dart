@@ -8,7 +8,7 @@ class AuthService {
   // Get current user
   User? get currentUser => _auth.currentUser;
 
-  // Sign up with email and password
+  // Sign up with email and password (for clinicians or basic patient signup)
   Future<UserCredential?> signUp({
     required String email,
     required String password,
@@ -40,6 +40,75 @@ class AuthService {
       throw _handleAuthException(e);
     } catch (e) {
       throw 'An unexpected error occurred: $e';
+    }
+  }
+
+  // Sign up patient with extended profile fields
+  Future<UserCredential?> signUpPatient({
+    required String email,
+    required String password,
+    required String name,
+    required int age,
+    required String gender,
+    required double height,
+    required double weight,
+    required double bmi,
+    required bool profiled,
+  }) async {
+    try {
+      // Create user account
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      // Store patient profile data in Firestore
+      await _firestore
+          .collection('patients')
+          .doc(userCredential.user?.uid)
+          .set({
+            'name': name,
+            'age': age,
+            'email': email,
+            'gender': gender,
+            'height': height,
+            'weight': weight,
+            'bmi': bmi,
+            'profiled': profiled,
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    } catch (e) {
+      throw 'An unexpected error occurred: $e';
+    }
+  }
+
+  // Update patient profile
+  Future<void> updatePatientProfile({
+    required String uid,
+    required Map<String, dynamic> profileData,
+  }) async {
+    try {
+      await _firestore.collection('patients').doc(uid).update({
+        ...profileData,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw 'Error updating profile: $e';
+    }
+  }
+
+  // Mark patient as fully profiled
+  Future<void> markPatientAsProfiled(String uid) async {
+    try {
+      await _firestore.collection('patients').doc(uid).update({
+        'profiled': true,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw 'Error updating profile status: $e';
     }
   }
 

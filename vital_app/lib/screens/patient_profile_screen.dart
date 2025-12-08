@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/patient_migration_service.dart';
 import 'chat_screen.dart';
 import 'user_type_selection_screen.dart';
 import 'search_clinicians_screen.dart';
+import 'complete_profile_screen.dart';
 
 class PatientProfileScreen extends StatefulWidget {
   const PatientProfileScreen({super.key});
@@ -13,6 +15,7 @@ class PatientProfileScreen extends StatefulWidget {
 
 class _PatientProfileScreenState extends State<PatientProfileScreen> {
   final _authService = AuthService();
+  final _migrationService = PatientMigrationService();
   Map<String, dynamic>? _userProfile;
   bool _isLoading = true;
   String? _errorMessage;
@@ -27,6 +30,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
     final user = _authService.currentUser;
 
     if (user == null) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = 'No user logged in';
         _isLoading = false;
@@ -35,12 +39,23 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
     }
 
     try {
+      // Check if patient needs migration
+      final needsMigration = await _migrationService
+          .currentPatientNeedsMigration();
+      if (needsMigration) {
+        // Migrate the patient profile
+        await _migrationService.migrateCurrentPatient();
+      }
+
+      if (!mounted) return;
       final profile = await _authService.getUserProfile(user.uid, 'patient');
+      if (!mounted) return;
       setState(() {
         _userProfile = profile;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
@@ -217,18 +232,120 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Chat Button
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const ChatScreen(),
+                    // Profile Completion Status
+                    if (_userProfile!['profiled'] != true)
+                      Card(
+                        color: Colors.orange.withValues(alpha: 0.1),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.info_outline,
+                                    color: Colors.orange[700],
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Complete Your Profile',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange[700],
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Complete your health profile to unlock the chatbot feature and get personalized health recommendations.',
+                                style: TextStyle(color: Colors.grey[700]),
+                              ),
+                              const SizedBox(height: 12),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const CompleteProfileScreen(),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange,
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: const Text('Complete Profile Now'),
+                              ),
+                            ],
                           ),
-                        );
-                      },
+                        ),
+                      ),
+                    if (_userProfile!['profiled'] != true)
+                      const SizedBox(height: 16),
+
+                    // Chat Button (only if profiled)
+                    ElevatedButton.icon(
+                      onPressed: _userProfile!['profiled'] == true
+                          ? () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const ChatScreen(),
+                                ),
+                              );
+                            }
+                          : null,
                       icon: const Icon(Icons.chat),
+                      label: Text(
+                        _userProfile!['profiled'] == true
+                            ? 'Open Chat'
+                            : 'Complete Profile to Use Chat',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        backgroundColor: _userProfile!['profiled'] == true
+                            ? Colors.green
+                            : Colors.grey,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Edit Profile Button
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        // Reload profile to get latest data
+                        await _loadUserProfile();
+                        if (!mounted) return;
+                        final profile = _userProfile;
+                        if (profile != null) {
+                          if (!mounted) return;
+                          // ignore: use_build_context_synchronously
+                          Navigator.of(context)
+                              .push(
+                                MaterialPageRoute(
+                                  builder: (context) => CompleteProfileScreen(
+                                    existingProfile: profile,
+                                  ),
+                                ),
+                              )
+                              .then((_) {
+                                // Reload profile after editing
+                                if (mounted) {
+                                  _loadUserProfile();
+                                }
+                              });
+                        }
+                      },
+                      icon: const Icon(Icons.edit),
                       label: const Text(
-                        'Open Chat',
+                        'Edit Profile',
                         style: TextStyle(fontSize: 16),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -236,7 +353,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        backgroundColor: Colors.green,
+                        backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
                       ),
                     ),

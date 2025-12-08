@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'user_type_selection_screen.dart';
+import 'signup_screen.dart';
+import 'patient_signup_screen.dart';
 import 'clinician_profile_screen.dart';
 import 'patient_profile_screen.dart';
 import 'admin_dashboard_screen.dart';
-import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final UserType userType;
@@ -279,7 +280,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) =>
-                              SignUpScreen(userType: widget.userType),
+                              widget.userType == UserType.patient
+                              ? const PatientSignUpScreen()
+                              : SignUpScreen(userType: widget.userType),
                         ),
                       );
                     },
