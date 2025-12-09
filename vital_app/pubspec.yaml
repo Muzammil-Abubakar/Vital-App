@@ -45,6 +45,10 @@ dependencies:
   
   # Gemini AI
   flutter_gemini: ^3.0.0
+  
+  # Health Connect
+  health: ^13.2.1
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:

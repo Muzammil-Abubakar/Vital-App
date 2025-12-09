@@ -5,6 +5,7 @@ import 'chat_screen.dart';
 import 'user_type_selection_screen.dart';
 import 'search_clinicians_screen.dart';
 import 'complete_profile_screen.dart';
+import 'health_metrics_screen.dart';
 
 class PatientProfileScreen extends StatefulWidget {
   const PatientProfileScreen({super.key});
@@ -346,6 +347,31 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                       icon: const Icon(Icons.edit),
                       label: const Text(
                         'Edit Profile',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Health Metrics Button
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const HealthMetricsScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.favorite),
+                      label: const Text(
+                        'Health Metrics',
                         style: TextStyle(fontSize: 16),
                       ),
                       style: ElevatedButton.styleFrom(

@@ -70,6 +70,15 @@ service cloud.firestore {
       
       // Allow delete: Only the patient can delete their own profile
       allow delete: if isOwner(patientId);
+      
+      // Health Data Subcollection
+      match /health_data/{dateKey} {
+        // Patients can read and write their own health data
+        // Clinicians can read patient health data (for medical records)
+        allow read: if isAuthenticated() && (isOwner(patientId) || isClinician());
+        allow create, update: if isAuthenticated() && isOwner(patientId);
+        allow delete: if isAuthenticated() && isOwner(patientId);
+      }
     }
     
     // ============================================

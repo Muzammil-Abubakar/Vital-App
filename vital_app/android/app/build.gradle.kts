@@ -25,7 +25,7 @@ android {
         applicationId = "com.example.vital_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = 26  // Required for health package (Health Connect requires Android 8.0+)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
