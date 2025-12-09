@@ -79,6 +79,7 @@ flutter:
   assets:
     - .env
     - assets/prescription_sample.jpg
+    - assets/sample_license.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

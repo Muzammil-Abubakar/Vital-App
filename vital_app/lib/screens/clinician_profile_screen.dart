@@ -127,6 +127,35 @@ class _ClinicianProfileScreenState extends State<ClinicianProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Verification Warning
+                    if (_userProfile!['verified'] != true)
+                      Card(
+                        color: Colors.orange,
+                        margin: const EdgeInsets.only(bottom: 24),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.warning,
+                                color: Colors.white,
+                                size: 32,
+                              ),
+                              const SizedBox(width: 16),
+                              const Expanded(
+                                child: Text(
+                                  'Your account is currently unverified. Please wait for admin verification.',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 20),
                     // Profile Icon
                     Center(
@@ -217,55 +246,60 @@ class _ClinicianProfileScreenState extends State<ClinicianProfileScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Chat Button
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const ChatScreen(),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.chat),
-                      label: const Text(
-                        'Open Chat',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    // Chat Button (only if verified)
+                    if (_userProfile!['verified'] == true)
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const ChatScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.chat),
+                        label: const Text(
+                          'Open Chat',
+                          style: TextStyle(fontSize: 16),
                         ),
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
+                    if (_userProfile!['verified'] == true)
+                      const SizedBox(height: 16),
 
-                    // View Requests Button
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const PrescriptionRequestsScreen(),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.assignment),
-                      label: const Text(
-                        'View Prescription Requests',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    // View Requests Button (only if verified)
+                    if (_userProfile!['verified'] == true)
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const PrescriptionRequestsScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.assignment),
+                        label: const Text(
+                          'View Prescription Requests',
+                          style: TextStyle(fontSize: 16),
                         ),
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                        ),
                       ),
-                    ),
+                    if (_userProfile!['verified'] == true)
+                      const SizedBox(height: 16),
                     const SizedBox(height: 16),
 
                     // Sign Out Button

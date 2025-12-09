@@ -1,30 +1,28 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import 'user_type_selection_screen.dart';
-import 'patient_profile_screen.dart';
-import 'clinician_signup_screen.dart';
+import 'clinician_profile_screen.dart';
 
-class SignUpScreen extends StatefulWidget {
-  final UserType userType;
-
-  const SignUpScreen({super.key, required this.userType});
+class ClinicianSignUpScreen extends StatefulWidget {
+  const ClinicianSignUpScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  State<ClinicianSignUpScreen> createState() => _ClinicianSignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _ClinicianSignUpScreenState extends State<ClinicianSignUpScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
+  final _documentNameController = TextEditingController();
   final _authService = AuthService();
 
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  final List<String> _documents = [];
 
   @override
   void dispose() {
@@ -33,11 +31,46 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _confirmPasswordController.dispose();
     _nameController.dispose();
     _ageController.dispose();
+    _documentNameController.dispose();
     super.dispose();
+  }
+
+  void _addDocument() {
+    final name = _documentNameController.text.trim();
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a document name'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _documents.add(name);
+      _documentNameController.clear();
+    });
+  }
+
+  void _removeDocument(int index) {
+    setState(() {
+      _documents.removeAt(index);
+    });
   }
 
   Future<void> _handleSignUp() async {
     if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_documents.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please add at least one document'),
+          backgroundColor: Colors.orange,
+        ),
+      );
       return;
     }
 
@@ -60,42 +93,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
         return;
       }
 
-      final userType = widget.userType == UserType.clinician
-          ? 'clinician'
-          : 'patient';
-
-      await _authService.signUp(
+      await _authService.signUpClinician(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
         name: _nameController.text.trim(),
         age: age,
-        userType: userType,
+        documentNames: _documents,
       );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Account created successfully!'),
+            content: Text('Account created successfully! Your account is pending verification.'),
             backgroundColor: Colors.green,
           ),
         );
 
-        // Navigate to appropriate screen
-        if (widget.userType == UserType.clinician) {
-          // Route clinicians to dedicated signup screen with document collection
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => const ClinicianSignUpScreen(),
-            ),
-          );
-        } else {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => const PatientProfileScreen(),
-            ),
-            (route) => false,
-          );
-        }
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => const ClinicianProfileScreen(),
+          ),
+          (route) => false,
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -115,18 +134,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
-  String _getUserTypeTitle() {
-    return widget.userType == UserType.clinician
-        ? 'Clinician Sign Up'
-        : 'Patient Sign Up';
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_getUserTypeTitle()),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Clinician Sign Up'),
+        backgroundColor: Colors.blue,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -138,7 +151,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               children: [
                 const SizedBox(height: 20),
                 Text(
-                  'Create Account',
+                  'Create Clinician Account',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -286,13 +299,113 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
+
+                // Documents Section - Made more prominent
+                Card(
+                  elevation: 2,
+                  color: Colors.blue[50],
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.description, color: Colors.blue),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Documents (Required)',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Add your medical license and other credentials',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _documentNameController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Document Name',
+                                  hintText: 'e.g., Medical License',
+                                  prefixIcon: Icon(Icons.description),
+                                  border: OutlineInputBorder(),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                ),
+                                onSubmitted: (_) => _addDocument(),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            ElevatedButton.icon(
+                              onPressed: _addDocument,
+                              icon: const Icon(Icons.add),
+                              label: const Text('Add'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        if (_documents.isEmpty)
+                          const Card(
+                            color: Colors.orange,
+                            child: Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.warning, color: Colors.white),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Please add at least one document',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        else
+                          ..._documents.asMap().entries.map((entry) {
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                leading: const Icon(Icons.description, color: Colors.blue),
+                                title: Text(entry.value),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () => _removeDocument(entry.key),
+                                ),
+                              ),
+                            );
+                          }),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
 
                 // Sign Up button
                 ElevatedButton(
                   onPressed: _isLoading ? null : _handleSignUp,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -310,25 +423,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         )
                       : const Text('Sign Up', style: TextStyle(fontSize: 16)),
                 ),
-                const SizedBox(height: 16),
-
-                // Login link
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Already have an account? Log In'),
-                ),
-
-                // Back to user type selection
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const UserTypeSelectionScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text('Back to User Type Selection'),
-                ),
               ],
             ),
           ),
@@ -337,3 +431,4 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 }
+

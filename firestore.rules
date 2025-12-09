@@ -30,6 +30,7 @@ service cloud.firestore {
     match /clinicians/{clinicianId} {
       // Allow read: Clinicians can read their own profile
       // Allow read: Patients can read clinician profiles (for appointment booking)
+      // Allow read: Admins can read all clinician profiles
       allow read: if isAuthenticated();
       
       // Allow create: Only during sign-up, user must be creating their own document
@@ -40,12 +41,28 @@ service cloud.firestore {
                        request.resource.data.email is string &&
                        request.resource.data.email == request.auth.token.email;
       
-      // Allow update: Only the clinician can update their own profile
-      allow update: if isOwner(clinicianId) && 
-                       request.resource.data.diff(resource.data).unchangedKeys().hasAll(['createdAt']);
+      // Allow update: Clinician can update their own profile (except verified status)
+      // Admin (admin@vital.com) can update verified status
+      allow update: if (isOwner(clinicianId) && 
+                       request.resource.data.diff(resource.data).unchangedKeys().hasAll(['createdAt', 'verified'])) ||
+                     (isAuthenticated() && 
+                      request.auth.token.email == 'admin@vital.com' && 
+                      request.resource.data.diff(resource.data).changedKeys().hasOnly(['verified', 'verifiedAt']));
       
       // Allow delete: Only the clinician can delete their own profile
       allow delete: if isOwner(clinicianId);
+      
+      // Clinician Documents Subcollection
+      match /documents/{documentId} {
+        // Clinicians can read their own documents
+        // Admins (admin@vital.com) can read all clinician documents
+        allow read: if isAuthenticated() && 
+                     (isOwner(clinicianId) || request.auth.token.email == 'admin@vital.com');
+        // Only clinicians can create their own documents during signup
+        allow create: if isOwner(clinicianId);
+        // No updates or deletes allowed
+        allow update, delete: if false;
+      }
     }
     
     // ============================================

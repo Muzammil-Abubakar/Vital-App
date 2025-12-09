@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'user_type_selection_screen.dart';
-import 'signup_screen.dart';
 import 'patient_signup_screen.dart';
+import 'clinician_signup_screen.dart';
 import 'clinician_profile_screen.dart';
 import 'patient_profile_screen.dart';
 import 'admin_dashboard_screen.dart';
@@ -48,20 +48,40 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      // Handle admin login separately
+      // Handle admin login separately - use Firebase Auth with admin email
       if (widget.userType == UserType.admin) {
         final username = _usernameController.text.trim();
         final password = _passwordController.text.trim();
 
         if (username == _adminUsername && password == _adminPassword) {
-          if (mounted) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => const AdminDashboardScreen(),
-              ),
+          // Admin uses Firebase Auth with admin@vital.com
+          // Sign in as admin Firebase user
+          try {
+            final adminCredential = await _authService.signIn(
+              email: 'admin@vital.com',
+              password: 'admin123', // Admin Firebase password
             );
+            
+            if (adminCredential?.user != null && mounted) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => const AdminDashboardScreen(),
+                ),
+              );
+            }
+            return;
+          } catch (e) {
+            // If admin Firebase account doesn't exist, still allow access
+            // but note that Firestore operations will fail
+            if (mounted) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => const AdminDashboardScreen(),
+                ),
+              );
+            }
+            return;
           }
-          return;
         } else {
           throw 'Invalid username or password';
         }
@@ -282,7 +302,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           builder: (context) =>
                               widget.userType == UserType.patient
                               ? const PatientSignUpScreen()
-                              : SignUpScreen(userType: widget.userType),
+                              : const ClinicianSignUpScreen(),
                         ),
                       );
                     },

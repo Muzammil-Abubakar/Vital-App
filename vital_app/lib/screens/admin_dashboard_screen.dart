@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'user_type_selection_screen.dart';
+import 'admin_verification_screen.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -141,6 +142,21 @@ class AdminDashboardScreen extends StatelessWidget {
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
+
+              _buildActionCard(
+                context,
+                title: 'Verify Clinicians',
+                description: 'Review and verify clinician accounts',
+                icon: Icons.verified_user,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const AdminVerificationScreen(),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
 
               _buildActionCard(
                 context,

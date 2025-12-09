@@ -85,6 +85,56 @@ class AuthService {
     }
   }
 
+  // Sign up clinician with documents
+  Future<UserCredential?> signUpClinician({
+    required String email,
+    required String password,
+    required String name,
+    required int age,
+    required List<String> documentNames,
+  }) async {
+    try {
+      // Create user account
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      // Store clinician profile data in Firestore
+      await _firestore
+          .collection('clinicians')
+          .doc(userCredential.user?.uid)
+          .set({
+            'name': name,
+            'age': age,
+            'email': email,
+            'verified': false, // Unverified by default
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+
+      // Store documents
+      if (documentNames.isNotEmpty) {
+        final batch = _firestore.batch();
+        for (final docName in documentNames) {
+          final docRef = _firestore
+              .collection('clinicians')
+              .doc(userCredential.user?.uid)
+              .collection('documents')
+              .doc();
+          batch.set(docRef, {
+            'name': docName,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        }
+        await batch.commit();
+      }
+
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    } catch (e) {
+      throw 'An unexpected error occurred: $e';
+    }
+  }
+
   // Update patient profile
   Future<void> updatePatientProfile({
     required String uid,
