@@ -8,6 +8,7 @@ import 'complete_profile_screen.dart';
 import 'health_metrics_screen.dart';
 import 'food_tracking_screen.dart';
 import 'exercise_tracking_screen.dart';
+import 'medical_documents_screen.dart';
 
 class PatientProfileScreen extends StatefulWidget {
   const PatientProfileScreen({super.key});
@@ -432,6 +433,31 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         backgroundColor: Colors.purple,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Medical Documents Button
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const MedicalDocumentsScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.folder),
+                      label: const Text(
+                        'Medical Documents',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        backgroundColor: Colors.teal,
                         foregroundColor: Colors.white,
                       ),
                     ),

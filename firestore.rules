@@ -97,6 +97,16 @@ service cloud.firestore {
         allow create, update: if isAuthenticated() && isOwner(patientId);
         allow delete: if isAuthenticated() && isOwner(patientId);
       }
+      
+      // Medical Documents Subcollection
+      match /medical_documents/{documentId} {
+        // Patients can read and write their own medical documents
+        // Clinicians can read patient medical documents (for medical records)
+        allow read: if isAuthenticated() && (isOwner(patientId) || isClinician());
+        allow create: if isAuthenticated() && isOwner(patientId);
+        allow update: if isAuthenticated() && isOwner(patientId);
+        allow delete: if isAuthenticated() && isOwner(patientId);
+      }
     }
     
     // ============================================
