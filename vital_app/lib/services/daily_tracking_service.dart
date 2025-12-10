@@ -61,7 +61,8 @@ class DailyTrackingService {
           medications[medicineName] = <String, String>{};
         }
 
-        final medicineEntries = medications[medicineName] as Map<String, String>;
+        final medicineEntries =
+            medications[medicineName] as Map<String, String>;
 
         // Add time slots for this medicine (e.g., panadol_1, panadol_2, etc.)
         for (int timeIndex = 1; timeIndex <= timesPerDay; timeIndex++) {
@@ -126,10 +127,12 @@ class DailyTrackingService {
           .doc(user.uid)
           .collection('daily_tracking')
           .doc(dateKey);
-      
-      fetchFutures.add(docRef.get().then((doc) {
-        existingDocs[dateKey] = doc;
-      }));
+
+      fetchFutures.add(
+        docRef.get().then((doc) {
+          existingDocs[dateKey] = doc;
+        }),
+      );
     }
 
     // Wait for all fetches to complete
@@ -148,16 +151,16 @@ class DailyTrackingService {
           .doc(dateKey);
 
       final existingDoc = existingDocs[dateKey];
-      
+
       if (existingDoc != null && existingDoc.exists) {
         final existingData = existingDoc.data() as Map<String, dynamic>;
-        
+
         // Merge medications
         final existingMedications = Map<String, dynamic>.from(
           existingData['medications'] ?? {},
         );
         final newMedications = newData['medications'] as Map<String, dynamic>;
-        
+
         // Merge each medicine
         for (var medicineEntry in newMedications.entries) {
           if (existingMedications.containsKey(medicineEntry.key)) {
@@ -257,16 +260,16 @@ class DailyTrackingService {
         .doc(dateKey)
         .snapshots()
         .map((doc) {
-      if (!doc.exists) return null;
+          if (!doc.exists) return null;
 
-      final data = doc.data() as Map<String, dynamic>;
-      return {
-        'date': date,
-        'medications': Map<String, dynamic>.from(data['medications'] ?? {}),
-        'appointments': List<String>.from(data['appointments'] ?? []),
-        'prescriptionIds': List<String>.from(data['prescriptionIds'] ?? []),
-      };
-    });
+          final data = doc.data() as Map<String, dynamic>;
+          return {
+            'date': date,
+            'medications': Map<String, dynamic>.from(data['medications'] ?? {}),
+            'appointments': List<String>.from(data['appointments'] ?? []),
+            'prescriptionIds': List<String>.from(data['prescriptionIds'] ?? []),
+          };
+        });
   }
 
   // Update medication status for a specific time slot
@@ -288,9 +291,9 @@ class DailyTrackingService {
         .collection('daily_tracking')
         .doc(dateKey)
         .update({
-      'medications.$medicineName.$timeKey': status,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+          'medications.$medicineName.$timeKey': status,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
   }
 
   // Mark appointment as attended
@@ -340,12 +343,12 @@ class DailyTrackingService {
         .collection('daily_tracking')
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        final date = (data['date'] as Timestamp).toDate();
-        return date;
-      }).toList();
-    });
+          return snapshot.docs.map((doc) {
+            final data = doc.data();
+            final date = (data['date'] as Timestamp).toDate();
+            return date;
+          }).toList();
+        });
   }
 
   // Check and mark missed medications/appointments for past dates
@@ -405,4 +408,3 @@ class DailyTrackingService {
     }
   }
 }
-

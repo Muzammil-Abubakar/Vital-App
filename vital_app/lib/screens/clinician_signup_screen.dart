@@ -104,7 +104,9 @@ class _ClinicianSignUpScreenState extends State<ClinicianSignUpScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Account created successfully! Your account is pending verification.'),
+            content: Text(
+              'Account created successfully! Your account is pending verification.',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -385,10 +387,16 @@ class _ClinicianSignUpScreenState extends State<ClinicianSignUpScreen> {
                             return Card(
                               margin: const EdgeInsets.only(bottom: 8),
                               child: ListTile(
-                                leading: const Icon(Icons.description, color: Colors.blue),
+                                leading: const Icon(
+                                  Icons.description,
+                                  color: Colors.blue,
+                                ),
                                 title: Text(entry.value),
                                 trailing: IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
                                   onPressed: () => _removeDocument(entry.key),
                                 ),
                               ),
@@ -431,4 +439,3 @@ class _ClinicianSignUpScreenState extends State<ClinicianSignUpScreen> {
     );
   }
 }
-

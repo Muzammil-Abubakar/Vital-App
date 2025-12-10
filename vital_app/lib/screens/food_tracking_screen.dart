@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/food_data_service.dart';
 import '../services/prescription_service.dart';
+import '../theme/patient_theme.dart';
 
 class FoodTrackingScreen extends StatefulWidget {
   const FoodTrackingScreen({super.key});
@@ -12,22 +13,28 @@ class FoodTrackingScreen extends StatefulWidget {
 class _FoodTrackingScreenState extends State<FoodTrackingScreen> {
   final _foodDataService = FoodDataService();
   final _prescriptionService = PrescriptionService();
-  
+
   bool _isLoading = true;
-  
+
   // Food data
   double _totalCalories = 0.0;
   List<Map<String, dynamic>> _foods = [];
-  
+
   // Recommended foods from prescriptions
   List<String> _recommendedFoods = [];
-  
+
   // Controllers for adding new food
   final _foodNameController = TextEditingController();
   final _quantityController = TextEditingController();
   String _selectedQuantityType = 'serving';
-  final List<String> _quantityTypes = ['serving', 'cup', 'gram (g)', 'ounce (oz)', 'piece'];
-  
+  final List<String> _quantityTypes = [
+    'serving',
+    'cup',
+    'gram (g)',
+    'ounce (oz)',
+    'piece',
+  ];
+
   // Controller for total calories
   final _totalCaloriesController = TextEditingController();
 
@@ -53,10 +60,11 @@ class _FoodTrackingScreenState extends State<FoodTrackingScreen> {
 
     try {
       final foodData = await _foodDataService.getTodayFoodData();
-      
+
       if (foodData != null) {
         setState(() {
-          _totalCalories = (foodData['totalCalories'] as num?)?.toDouble() ?? 0.0;
+          _totalCalories =
+              (foodData['totalCalories'] as num?)?.toDouble() ?? 0.0;
           _foods = List<Map<String, dynamic>>.from(foodData['foods'] ?? []);
           _totalCaloriesController.text = _totalCalories.toStringAsFixed(1);
         });
@@ -88,12 +96,16 @@ class _FoodTrackingScreenState extends State<FoodTrackingScreen> {
     if (user == null) return;
 
     try {
-      final snapshot = await _prescriptionService.getPrescriptionsForPatient(user.uid).first;
+      final snapshot = await _prescriptionService
+          .getPrescriptionsForPatient(user.uid)
+          .first;
       final Set<String> allRecommendedFoods = {};
 
       for (var doc in snapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
-        final recommendedFoods = List<String>.from(data['recommendedFoods'] ?? []);
+        final recommendedFoods = List<String>.from(
+          data['recommendedFoods'] ?? [],
+        );
         allRecommendedFoods.addAll(recommendedFoods);
       }
 
@@ -172,7 +184,8 @@ class _FoodTrackingScreenState extends State<FoodTrackingScreen> {
 
   Future<void> _saveFoodData() async {
     try {
-      final totalCalories = double.tryParse(_totalCaloriesController.text.trim()) ?? 0.0;
+      final totalCalories =
+          double.tryParse(_totalCaloriesController.text.trim()) ?? 0.0;
 
       await _foodDataService.storeDailyFoodData(
         totalCalories: totalCalories,
@@ -205,6 +218,9 @@ class _FoodTrackingScreenState extends State<FoodTrackingScreen> {
 
   Widget _buildAddFoodDialog() {
     return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(PatientTheme.borderRadiusMedium),
+      ),
       title: const Text('Add Food'),
       content: SingleChildScrollView(
         child: Column(
@@ -212,10 +228,16 @@ class _FoodTrackingScreenState extends State<FoodTrackingScreen> {
           children: [
             TextField(
               controller: _foodNameController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Food Name',
-                prefixIcon: Icon(Icons.restaurant),
-                border: OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.restaurant),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(
+                    PatientTheme.borderRadiusSmall,
+                  ),
+                ),
+                filled: true,
+                fillColor: Colors.grey[50],
               ),
             ),
             const SizedBox(height: 16),
@@ -225,12 +247,20 @@ class _FoodTrackingScreenState extends State<FoodTrackingScreen> {
                   flex: 2,
                   child: TextField(
                     controller: _quantityController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Quantity',
-                      prefixIcon: Icon(Icons.scale),
-                      border: OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.scale),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          PatientTheme.borderRadiusSmall,
+                        ),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
                     ),
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -238,16 +268,19 @@ class _FoodTrackingScreenState extends State<FoodTrackingScreen> {
                   child: DropdownButtonFormField<String>(
                     isExpanded: true,
                     initialValue: _selectedQuantityType,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          PatientTheme.borderRadiusSmall,
+                        ),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
                     ),
                     items: _quantityTypes.map((type) {
                       return DropdownMenuItem(
                         value: type,
-                        child: Text(
-                          type,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        child: Text(type, overflow: TextOverflow.ellipsis),
                       );
                     }).toList(),
                     onChanged: (value) {
@@ -271,13 +304,19 @@ class _FoodTrackingScreenState extends State<FoodTrackingScreen> {
           },
           child: const Text('Cancel'),
         ),
-        ElevatedButton(
+        FilledButton(
           onPressed: () {
             Navigator.of(context).pop();
             _addFood();
           },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
+          style: FilledButton.styleFrom(
+            backgroundColor: Colors.orange[700],
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                PatientTheme.borderRadiusSmall,
+              ),
+            ),
           ),
           child: const Text('Add'),
         ),
@@ -289,20 +328,20 @@ class _FoodTrackingScreenState extends State<FoodTrackingScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Food Tracking'),
-          backgroundColor: Colors.orange,
+        backgroundColor: PatientTheme.surfaceColor,
+        appBar: PatientTheme.buildAppBar(
+          title: 'Food Tracking',
+          backgroundColor: Colors.orange[700]!,
         ),
-        body: const Center(
-          child: CircularProgressIndicator(),
-        ),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Food Tracking'),
-        backgroundColor: Colors.orange,
+      backgroundColor: PatientTheme.surfaceColor,
+      appBar: PatientTheme.buildAppBar(
+        title: 'Food Tracking',
+        backgroundColor: Colors.orange[700]!,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -316,165 +355,259 @@ class _FoodTrackingScreenState extends State<FoodTrackingScreen> {
           await _loadFoodData();
           await _loadRecommendedFoods();
         },
+        color: Colors.orange[700],
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 20),
               // Total Calories Card
-              Card(
-                elevation: 2,
-                margin: const EdgeInsets.all(16),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
+              PatientTheme.buildCard(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.orange[100],
+                            borderRadius: BorderRadius.circular(
+                              PatientTheme.borderRadiusSmall,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.local_fire_department,
+                            color: Colors.orange[700],
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Total Calories Eaten',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: _totalCaloriesController,
+                      decoration: InputDecoration(
+                        labelText: 'Total Calories (kcal)',
+                        prefixIcon: const Icon(Icons.local_fire_department),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                            PatientTheme.borderRadiusSmall,
+                          ),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[50],
+                      ),
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: _saveFoodData,
+                        icon: const Icon(Icons.save),
+                        label: const Text('Save Calories'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.orange[700],
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              PatientTheme.borderRadiusSmall,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+              // Recommended Foods Section
+              if (_recommendedFoods.isNotEmpty) ...[
+                PatientTheme.buildCard(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(20),
+                  gradientColors: [
+                    PatientTheme.primaryColor.withValues(alpha: 0.1),
+                    PatientTheme.primaryColor.withValues(alpha: 0.05),
+                  ],
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Total Calories Eaten',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _totalCaloriesController,
-                        decoration: const InputDecoration(
-                          labelText: 'Total Calories (kcal)',
-                          prefixIcon: Icon(Icons.local_fire_department),
-                          border: OutlineInputBorder(),
-                        ),
-                        keyboardType: TextInputType.numberWithOptions(decimal: true),
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _saveFoodData,
-                          icon: const Icon(Icons.save),
-                          label: const Text('Save Calories'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: PatientTheme.primaryColor.withValues(
+                                alpha: 0.15,
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                PatientTheme.borderRadiusSmall,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.check_circle,
+                              color: PatientTheme.primaryColor,
+                              size: 20,
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Recommended Foods',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: PatientTheme.primaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _recommendedFoods.map((food) {
+                          return Chip(
+                            label: Text(food),
+                            backgroundColor: PatientTheme.primaryColor
+                                .withValues(alpha: 0.15),
+                            avatar: const Icon(
+                              Icons.restaurant,
+                              size: 18,
+                              color: PatientTheme.primaryColor,
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ],
                   ),
                 ),
-              ),
-
-              // Recommended Foods Section
-              if (_recommendedFoods.isNotEmpty) ...[
-                Card(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.check_circle, color: Colors.green),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'Recommended Foods',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: _recommendedFoods.map((food) {
-                            return Chip(
-                              label: Text(food),
-                              backgroundColor: Colors.green.withValues(alpha: 0.2),
-                              avatar: const Icon(Icons.restaurant, size: 18, color: Colors.green),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
               ],
 
               // Foods List
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Foods Eaten',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: Colors.grey[800],
                       ),
                     ),
-                    ElevatedButton.icon(
+                    FilledButton.icon(
                       onPressed: () {
                         showDialog(
                           context: context,
                           builder: (context) => _buildAddFoodDialog(),
                         );
                       },
-                      icon: const Icon(Icons.add),
+                      icon: const Icon(Icons.add, size: 18),
                       label: const Text('Add Food'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.orange[700],
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            PatientTheme.borderRadiusSmall,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
 
               if (_foods.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Center(
-                    child: Text(
-                      'No foods added yet.\nTap "Add Food" to get started!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey),
-                    ),
+                PatientTheme.buildCard(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(40),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.restaurant_outlined,
+                        size: 64,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No foods added yet.\nTap "Add Food" to get started!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                      ),
+                    ],
                   ),
                 )
               else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _foods.length,
-                  itemBuilder: (context, index) {
-                    final food = _foods[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      child: ListTile(
-                        leading: const Icon(Icons.restaurant, color: Colors.orange),
-                        title: Text(food['name'] as String),
-                        subtitle: Text(
-                          '${food['quantity']} ${food['quantityType']}',
+                ...List.generate(_foods.length, (index) {
+                  final food = _foods[index];
+                  return PatientTheme.buildCard(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 6,
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.orange[100],
+                          borderRadius: BorderRadius.circular(
+                            PatientTheme.borderRadiusSmall,
+                          ),
                         ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _removeFood(index),
+                        child: Icon(
+                          Icons.restaurant,
+                          color: Colors.orange[700],
+                          size: 20,
                         ),
                       ),
-                    );
-                  },
-                ),
+                      title: Text(
+                        food['name'] as String,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: Text(
+                        '${food['quantity']} ${food['quantityType']}',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(
+                          Icons.delete_outline,
+                          color: Colors.red[300],
+                        ),
+                        onPressed: () => _removeFood(index),
+                      ),
+                    ),
+                  );
+                }),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -482,4 +615,3 @@ class _FoodTrackingScreenState extends State<FoodTrackingScreen> {
     );
   }
 }
-

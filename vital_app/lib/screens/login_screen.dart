@@ -4,7 +4,7 @@ import 'user_type_selection_screen.dart';
 import 'patient_signup_screen.dart';
 import 'clinician_signup_screen.dart';
 import 'clinician_profile_screen.dart';
-import 'patient_profile_screen.dart';
+import 'patient_dashboard_screen.dart';
 import 'admin_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -61,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
               email: 'admin@vital.com',
               password: 'admin123', // Admin Firebase password
             );
-            
+
             if (adminCredential?.user != null && mounted) {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
@@ -122,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
         } else {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => const PatientProfileScreen(),
+              builder: (context) => const PatientDashboardScreen(),
             ),
           );
         }

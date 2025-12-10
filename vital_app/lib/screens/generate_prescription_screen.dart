@@ -14,10 +14,12 @@ class GeneratePrescriptionScreen extends StatefulWidget {
   });
 
   @override
-  State<GeneratePrescriptionScreen> createState() => _GeneratePrescriptionScreenState();
+  State<GeneratePrescriptionScreen> createState() =>
+      _GeneratePrescriptionScreenState();
 }
 
-class _GeneratePrescriptionScreenState extends State<GeneratePrescriptionScreen> {
+class _GeneratePrescriptionScreenState
+    extends State<GeneratePrescriptionScreen> {
   final _prescriptionService = PrescriptionService();
   final _formKey = GlobalKey<FormState>();
 
@@ -158,10 +160,7 @@ class _GeneratePrescriptionScreenState extends State<GeneratePrescriptionScreen>
     }
 
     setState(() {
-      _appointments.add({
-        'title': title,
-        'date': _selectedAppointmentDate!,
-      });
+      _appointments.add({'title': title, 'date': _selectedAppointmentDate!});
       _appointmentTitleController.clear();
       _selectedAppointmentDate = null;
     });
@@ -279,8 +278,9 @@ class _GeneratePrescriptionScreenState extends State<GeneratePrescriptionScreen>
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
-                          ...(requestData['chronicConditions'] as List)
-                              .map((condition) => Text('• $condition')),
+                          ...(requestData['chronicConditions'] as List).map(
+                            (condition) => Text('• $condition'),
+                          ),
                           const SizedBox(height: 8),
                         ],
                         if (requestData['allergies'] != null) ...[
@@ -289,8 +289,9 @@ class _GeneratePrescriptionScreenState extends State<GeneratePrescriptionScreen>
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
-                          ...(requestData['allergies'] as List)
-                              .map((allergy) => Text('• $allergy')),
+                          ...(requestData['allergies'] as List).map(
+                            (allergy) => Text('• $allergy'),
+                          ),
                           const SizedBox(height: 8),
                         ],
                         if (requestData['medications'] != null) ...[
@@ -299,8 +300,9 @@ class _GeneratePrescriptionScreenState extends State<GeneratePrescriptionScreen>
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
-                          ...(requestData['medications'] as List)
-                              .map((med) => Text('• $med')),
+                          ...(requestData['medications'] as List).map(
+                            (med) => Text('• $med'),
+                          ),
                         ],
                       ],
                     ],
@@ -351,7 +353,10 @@ class _GeneratePrescriptionScreenState extends State<GeneratePrescriptionScreen>
               const SizedBox(height: 24),
 
               // Recommended Exercises Section
-              _buildSectionHeader('Recommended Exercises', Icons.fitness_center),
+              _buildSectionHeader(
+                'Recommended Exercises',
+                Icons.fitness_center,
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -476,7 +481,9 @@ class _GeneratePrescriptionScreenState extends State<GeneratePrescriptionScreen>
                   child: Text(
                     _selectedAppointmentDate == null
                         ? 'Select date'
-                        : DateFormat('MMM dd, yyyy').format(_selectedAppointmentDate!),
+                        : DateFormat(
+                            'MMM dd, yyyy',
+                          ).format(_selectedAppointmentDate!),
                   ),
                 ),
               ),
@@ -499,8 +506,9 @@ class _GeneratePrescriptionScreenState extends State<GeneratePrescriptionScreen>
                     child: ListTile(
                       title: Text(_appointments[index]['title']),
                       subtitle: Text(
-                        DateFormat('MMM dd, yyyy')
-                            .format(_appointments[index]['date'] as DateTime),
+                        DateFormat(
+                          'MMM dd, yyyy',
+                        ).format(_appointments[index]['date'] as DateTime),
                       ),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
@@ -543,13 +551,9 @@ class _GeneratePrescriptionScreenState extends State<GeneratePrescriptionScreen>
         const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ],
     );
   }
 }
-

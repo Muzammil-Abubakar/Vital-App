@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/health_service.dart';
 import '../services/health_data_service.dart';
+import '../theme/patient_theme.dart';
 
 class HealthMetricsScreen extends StatefulWidget {
   const HealthMetricsScreen({super.key});
@@ -13,19 +14,19 @@ class HealthMetricsScreen extends StatefulWidget {
 class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
   final _healthService = HealthService();
   final _healthDataService = HealthDataService();
-  
+
   bool _isHealthConnectInstalled = false;
   bool _hasPermissions = false;
   bool _isLoading = true;
   bool _isSyncing = false;
   bool _isSaving = false;
-  
+
   // Health data
   int? _steps;
   double? _caloriesBurned;
   double? _hoursSlept;
   double? _heartRate;
-  
+
   // Manual entry controllers
   final _stepsController = TextEditingController();
   final _caloriesController = TextEditingController();
@@ -55,7 +56,7 @@ class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
     try {
       // Check if Health Connect is installed
       final isInstalled = await _healthService.isHealthConnectInstalled();
-      
+
       if (!isInstalled) {
         setState(() {
           _isHealthConnectInstalled = false;
@@ -66,7 +67,7 @@ class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
 
       // Check permissions
       final hasPerms = await _healthService.hasPermissions();
-      
+
       setState(() {
         _isHealthConnectInstalled = true;
         _hasPermissions = hasPerms ?? false;
@@ -98,7 +99,7 @@ class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
 
     try {
       final granted = await _healthService.requestPermissions();
-      
+
       setState(() {
         _hasPermissions = granted;
         _isLoading = false;
@@ -139,29 +140,37 @@ class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
     try {
       // First, try to get data from Health Connect
       final healthData = await _healthService.getTodayHealthData();
-      
+
       // Then, try to get data from Firestore
       final firestoreData = await _healthDataService.getTodayHealthData();
-      
+
       // Merge data: prefer Firestore (app's stored data) when Health Connect returns 0 or null
       setState(() {
         final hcSteps = healthData['steps'];
         final fsSteps = firestoreData?['steps'];
         // Use Health Connect if it has a value > 0, otherwise use Firestore, otherwise use Health Connect (even if 0)
-        _steps = (hcSteps != null && hcSteps > 0) ? hcSteps : (fsSteps ?? hcSteps);
-        
+        _steps = (hcSteps != null && hcSteps > 0)
+            ? hcSteps
+            : (fsSteps ?? hcSteps);
+
         final hcCalories = healthData['caloriesBurned'];
         final fsCalories = firestoreData?['caloriesBurned'];
-        _caloriesBurned = (hcCalories != null && hcCalories > 0) ? hcCalories : (fsCalories ?? hcCalories);
-        
+        _caloriesBurned = (hcCalories != null && hcCalories > 0)
+            ? hcCalories
+            : (fsCalories ?? hcCalories);
+
         final hcSleep = healthData['hoursSlept'];
         final fsSleep = firestoreData?['hoursSlept'];
-        _hoursSlept = (hcSleep != null && hcSleep > 0) ? hcSleep : (fsSleep ?? hcSleep);
-        
+        _hoursSlept = (hcSleep != null && hcSleep > 0)
+            ? hcSleep
+            : (fsSleep ?? hcSleep);
+
         final hcHeartRate = healthData['heartRate'];
         final fsHeartRate = firestoreData?['heartRate'];
-        _heartRate = (hcHeartRate != null && hcHeartRate > 0) ? hcHeartRate : (fsHeartRate ?? hcHeartRate);
-        
+        _heartRate = (hcHeartRate != null && hcHeartRate > 0)
+            ? hcHeartRate
+            : (fsHeartRate ?? hcHeartRate);
+
         // Update text controllers for manual entry
         _stepsController.text = _steps?.toString() ?? '';
         _caloriesController.text = _caloriesBurned?.toStringAsFixed(1) ?? '';
@@ -221,7 +230,10 @@ class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
 
       // Write to Health Connect if available
       if (_isHealthConnectInstalled && _hasPermissions) {
-        if (steps != null && calories != null && sleep != null && heartRate != null) {
+        if (steps != null &&
+            calories != null &&
+            sleep != null &&
+            heartRate != null) {
           await _healthService.writeManualHealthData(
             steps: steps,
             calories: calories,
@@ -270,141 +282,184 @@ class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
     required String unit,
     required Color color,
   }) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+    return PatientTheme.buildCard(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(
+                PatientTheme.borderRadiusSmall,
               ),
-              child: Center(
-                child: Text(
-                  icon,
-                  style: const TextStyle(fontSize: 24),
+            ),
+            child: Center(
+              child: Text(icon, style: const TextStyle(fontSize: 24)),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
+                const SizedBox(height: 6),
+                Text(
+                  value != null ? '$value $unit' : 'No data',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: value != null ? color : Colors.grey[400],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    value != null ? '$value $unit' : 'No data',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: value != null ? Colors.black : Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildManualEntrySection() {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.all(16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Manual Entry',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _stepsController,
-              decoration: const InputDecoration(
-                labelText: 'Steps',
-                prefixIcon: Icon(Icons.directions_walk),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _caloriesController,
-              decoration: const InputDecoration(
-                labelText: 'Calories Burned',
-                prefixIcon: Icon(Icons.local_fire_department),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _sleepController,
-              decoration: const InputDecoration(
-                labelText: 'Hours Slept',
-                prefixIcon: Icon(Icons.bedtime),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _heartRateController,
-              decoration: const InputDecoration(
-                labelText: 'Heart Rate (BPM)',
-                prefixIcon: Icon(Icons.favorite),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isSaving ? null : _saveManualEntry,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+    return PatientTheme.buildCard(
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: PatientTheme.primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(
+                    PatientTheme.borderRadiusSmall,
+                  ),
                 ),
-                child: _isSaving
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : const Text(
-                        'Save Manual Entry',
-                        style: TextStyle(fontSize: 16),
-                      ),
+                child: Icon(
+                  Icons.edit,
+                  color: PatientTheme.primaryColor,
+                  size: 20,
+                ),
               ),
+              const SizedBox(width: 12),
+              const Text(
+                'Manual Entry',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          TextField(
+            controller: _stepsController,
+            decoration: InputDecoration(
+              labelText: 'Steps',
+              prefixIcon: const Icon(Icons.directions_walk),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(
+                  PatientTheme.borderRadiusSmall,
+                ),
+              ),
+              filled: true,
+              fillColor: Colors.grey[50],
             ),
-          ],
-        ),
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _caloriesController,
+            decoration: InputDecoration(
+              labelText: 'Calories Burned',
+              prefixIcon: const Icon(Icons.local_fire_department),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(
+                  PatientTheme.borderRadiusSmall,
+                ),
+              ),
+              filled: true,
+              fillColor: Colors.grey[50],
+            ),
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _sleepController,
+            decoration: InputDecoration(
+              labelText: 'Hours Slept',
+              prefixIcon: const Icon(Icons.bedtime),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(
+                  PatientTheme.borderRadiusSmall,
+                ),
+              ),
+              filled: true,
+              fillColor: Colors.grey[50],
+            ),
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _heartRateController,
+            decoration: InputDecoration(
+              labelText: 'Heart Rate (BPM)',
+              prefixIcon: const Icon(Icons.favorite),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(
+                  PatientTheme.borderRadiusSmall,
+                ),
+              ),
+              filled: true,
+              fillColor: Colors.grey[50],
+            ),
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _isSaving ? null : _saveManualEntry,
+              style: FilledButton.styleFrom(
+                backgroundColor: PatientTheme.primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    PatientTheme.borderRadiusSmall,
+                  ),
+                ),
+              ),
+              child: _isSaving
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text(
+                      'Save Manual Entry',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -413,21 +468,21 @@ class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Health Metrics'),
-          backgroundColor: Colors.green,
+        backgroundColor: PatientTheme.surfaceColor,
+        appBar: PatientTheme.buildAppBar(
+          title: 'Health Metrics',
+          backgroundColor: PatientTheme.primaryColor,
         ),
-        body: const Center(
-          child: CircularProgressIndicator(),
-        ),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (!_isHealthConnectInstalled) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Health Metrics'),
-          backgroundColor: Colors.green,
+        backgroundColor: PatientTheme.surfaceColor,
+        appBar: PatientTheme.buildAppBar(
+          title: 'Health Metrics',
+          backgroundColor: PatientTheme.primaryColor,
         ),
         body: Center(
           child: Padding(
@@ -443,10 +498,7 @@ class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
                 const SizedBox(height: 16),
                 const Text(
                   'Health Connect Not Found',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 const Text(
@@ -455,15 +507,21 @@ class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
                   style: TextStyle(color: Colors.grey),
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton(
+                FilledButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: PatientTheme.primaryColor,
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 32,
                       vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        PatientTheme.borderRadiusSmall,
+                      ),
                     ),
                   ),
                   child: const Text('Go Back'),
@@ -477,9 +535,10 @@ class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
 
     if (!_hasPermissions) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Health Metrics'),
-          backgroundColor: Colors.green,
+        backgroundColor: PatientTheme.surfaceColor,
+        appBar: PatientTheme.buildAppBar(
+          title: 'Health Metrics',
+          backgroundColor: PatientTheme.primaryColor,
         ),
         body: Center(
           child: Padding(
@@ -487,18 +546,11 @@ class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
-                  Icons.lock,
-                  size: 64,
-                  color: Colors.orange,
-                ),
+                const Icon(Icons.lock, size: 64, color: Colors.orange),
                 const SizedBox(height: 16),
                 const Text(
                   'Permissions Required',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 const Text(
@@ -507,13 +559,19 @@ class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
                   style: TextStyle(color: Colors.grey),
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton(
+                FilledButton(
                   onPressed: _requestPermissions,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: PatientTheme.primaryColor,
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 32,
                       vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        PatientTheme.borderRadiusSmall,
+                      ),
                     ),
                   ),
                   child: const Text('Grant Permissions'),
@@ -526,9 +584,10 @@ class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Health Metrics'),
-        backgroundColor: Colors.green,
+      backgroundColor: PatientTheme.surfaceColor,
+      appBar: PatientTheme.buildAppBar(
+        title: 'Health Metrics',
+        backgroundColor: PatientTheme.primaryColor,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -539,27 +598,34 @@ class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: _loadHealthData,
+        color: PatientTheme.primaryColor,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (_isSyncing)
-                const LinearProgressIndicator(
-                  backgroundColor: Colors.green,
+                LinearProgressIndicator(
+                  backgroundColor: PatientTheme.primaryColor.withValues(
+                    alpha: 0.2,
+                  ),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    PatientTheme.primaryColor,
+                  ),
                 ),
-              const SizedBox(height: 16),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
                   'Today\'s Metrics',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
+                    color: Colors.grey[800],
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               _buildMetricCard(
                 title: 'Steps',
                 icon: '👣',
@@ -598,4 +664,3 @@ class _HealthMetricsScreenState extends State<HealthMetricsScreen> {
     );
   }
 }
-

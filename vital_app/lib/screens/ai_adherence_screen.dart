@@ -30,7 +30,9 @@ class _AIAdherenceScreenState extends State<AIAdherenceScreen> {
     });
 
     try {
-      final report = await _aiAdherenceService.getAdherenceReport(_selectedDate);
+      final report = await _aiAdherenceService.getAdherenceReport(
+        _selectedDate,
+      );
       if (mounted) {
         setState(() {
           _currentReport = report;
@@ -59,7 +61,9 @@ class _AIAdherenceScreenState extends State<AIAdherenceScreen> {
     });
 
     try {
-      final report = await _aiAdherenceService.generateAdherenceReport(_selectedDate);
+      final report = await _aiAdherenceService.generateAdherenceReport(
+        _selectedDate,
+      );
       if (mounted) {
         setState(() {
           _currentReport = report;
@@ -125,7 +129,9 @@ class _AIAdherenceScreenState extends State<AIAdherenceScreen> {
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Prompt displayed. You can select and copy it.'),
+                    content: Text(
+                      'Prompt displayed. You can select and copy it.',
+                    ),
                     duration: Duration(seconds: 2),
                   ),
                 );
@@ -214,7 +220,10 @@ class _AIAdherenceScreenState extends State<AIAdherenceScreen> {
                           padding: const EdgeInsets.all(16),
                           child: Row(
                             children: [
-                              const Icon(Icons.calendar_today, color: Colors.purple),
+                              const Icon(
+                                Icons.calendar_today,
+                                color: Colors.purple,
+                              ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
@@ -229,7 +238,9 @@ class _AIAdherenceScreenState extends State<AIAdherenceScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      DateFormat('MMM dd, yyyy').format(_selectedDate),
+                                      DateFormat(
+                                        'MMM dd, yyyy',
+                                      ).format(_selectedDate),
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -277,7 +288,11 @@ class _AIAdherenceScreenState extends State<AIAdherenceScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.auto_awesome),
-                      label: Text(_isGenerating ? 'Generating Report...' : 'Generate Adherence Report'),
+                      label: Text(
+                        _isGenerating
+                            ? 'Generating Report...'
+                            : 'Generate Adherence Report',
+                      ),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         backgroundColor: Colors.purple,
@@ -311,8 +326,11 @@ class _AIAdherenceScreenState extends State<AIAdherenceScreen> {
                           padding: const EdgeInsets.all(32),
                           child: Column(
                             children: [
-                              Icon(Icons.assessment_outlined,
-                                  size: 64, color: Colors.grey[400]),
+                              Icon(
+                                Icons.assessment_outlined,
+                                size: 64,
+                                color: Colors.grey[400],
+                              ),
                               const SizedBox(height: 16),
                               Text(
                                 'No report generated yet',
@@ -346,10 +364,12 @@ class _AIAdherenceScreenState extends State<AIAdherenceScreen> {
                                 borderRadius: BorderRadius.circular(16),
                                 gradient: LinearGradient(
                                   colors: [
-                                    _getScoreColor(_currentReport!['score'] as double)
-                                        .withValues(alpha: 0.8),
-                                    _getScoreColor(_currentReport!['score'] as double)
-                                        .withValues(alpha: 0.6),
+                                    _getScoreColor(
+                                      _currentReport!['score'] as double,
+                                    ).withValues(alpha: 0.8),
+                                    _getScoreColor(
+                                      _currentReport!['score'] as double,
+                                    ).withValues(alpha: 0.6),
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
@@ -398,8 +418,11 @@ class _AIAdherenceScreenState extends State<AIAdherenceScreen> {
                                 children: [
                                   Row(
                                     children: [
-                                      Icon(Icons.title,
-                                          color: Colors.purple[700], size: 20),
+                                      Icon(
+                                        Icons.title,
+                                        color: Colors.purple[700],
+                                        size: 20,
+                                      ),
                                       const SizedBox(width: 8),
                                       const Text(
                                         'Report Title',
@@ -413,7 +436,8 @@ class _AIAdherenceScreenState extends State<AIAdherenceScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    _currentReport!['title'] as String? ?? 'Adherence Report',
+                                    _currentReport!['title'] as String? ??
+                                        'Adherence Report',
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -434,8 +458,11 @@ class _AIAdherenceScreenState extends State<AIAdherenceScreen> {
                                 children: [
                                   Row(
                                     children: [
-                                      Icon(Icons.description,
-                                          color: Colors.purple[700], size: 20),
+                                      Icon(
+                                        Icons.description,
+                                        color: Colors.purple[700],
+                                        size: 20,
+                                      ),
                                       const SizedBox(width: 8),
                                       const Text(
                                         'AI Analysis',
@@ -456,7 +483,8 @@ class _AIAdherenceScreenState extends State<AIAdherenceScreen> {
                                       height: 1.6,
                                     ),
                                   ),
-                                  if (_currentReport!['generatedAt'] != null) ...[
+                                  if (_currentReport!['generatedAt'] !=
+                                      null) ...[
                                     const SizedBox(height: 16),
                                     const Divider(),
                                     const SizedBox(height: 8),
@@ -482,4 +510,3 @@ class _AIAdherenceScreenState extends State<AIAdherenceScreen> {
     );
   }
 }
-

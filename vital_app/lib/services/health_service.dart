@@ -29,10 +29,10 @@ class HealthService {
   Future<bool> requestPermissions() async {
     try {
       await _health.configure();
-      
+
       // Request activity recognition permission first (required for steps)
       await Permission.activityRecognition.request();
-      
+
       // Request Health Connect permissions
       final requested = await _health.requestAuthorization(
         _healthDataTypes,
@@ -43,7 +43,7 @@ class HealthService {
           HealthDataAccess.READ_WRITE,
         ],
       );
-      
+
       return requested;
     } catch (e) {
       return false;
@@ -64,10 +64,10 @@ class HealthService {
   Future<Map<String, dynamic>> getTodayHealthData() async {
     try {
       await _health.configure();
-      
+
       final now = DateTime.now();
       final midnight = DateTime(now.year, now.month, now.day);
-      
+
       // Get steps
       int? steps;
       try {
@@ -75,7 +75,7 @@ class HealthService {
       } catch (e) {
         steps = null;
       }
-      
+
       // Get calories burned (active energy)
       double? calories;
       try {
@@ -88,7 +88,8 @@ class HealthService {
           double totalCalories = 0;
           for (var dataPoint in caloriesData) {
             if (dataPoint.value is NumericHealthValue) {
-              totalCalories += (dataPoint.value as NumericHealthValue).numericValue;
+              totalCalories +=
+                  (dataPoint.value as NumericHealthValue).numericValue;
             }
           }
           calories = totalCalories;
@@ -96,7 +97,7 @@ class HealthService {
       } catch (e) {
         calories = null;
       }
-      
+
       // Get sleep (hours slept)
       double? hoursSlept;
       try {
@@ -109,7 +110,8 @@ class HealthService {
           double totalMinutes = 0;
           for (var dataPoint in sleepData) {
             if (dataPoint.value is NumericHealthValue) {
-              totalMinutes += (dataPoint.value as NumericHealthValue).numericValue;
+              totalMinutes +=
+                  (dataPoint.value as NumericHealthValue).numericValue;
             }
           }
           hoursSlept = totalMinutes / 60.0; // Convert minutes to hours
@@ -117,7 +119,7 @@ class HealthService {
       } catch (e) {
         hoursSlept = null;
       }
-      
+
       // Get heart rate (average for today)
       double? heartRate;
       try {
@@ -131,7 +133,8 @@ class HealthService {
           int count = 0;
           for (var dataPoint in heartRateData) {
             if (dataPoint.value is NumericHealthValue) {
-              totalHeartRate += (dataPoint.value as NumericHealthValue).numericValue;
+              totalHeartRate +=
+                  (dataPoint.value as NumericHealthValue).numericValue;
               count++;
             }
           }
@@ -140,7 +143,7 @@ class HealthService {
       } catch (e) {
         heartRate = null;
       }
-      
+
       return {
         'steps': steps,
         'caloriesBurned': calories,
@@ -167,9 +170,9 @@ class HealthService {
     try {
       await _health.configure();
       final now = DateTime.now();
-      
+
       bool success = true;
-      
+
       // Write steps
       success &= await _health.writeHealthData(
         value: steps.toDouble(),
@@ -177,7 +180,7 @@ class HealthService {
         startTime: now,
         endTime: now,
       );
-      
+
       // Write calories
       success &= await _health.writeHealthData(
         value: calories,
@@ -185,7 +188,7 @@ class HealthService {
         startTime: now,
         endTime: now,
       );
-      
+
       // Write sleep (convert hours to minutes)
       success &= await _health.writeHealthData(
         value: hoursSlept * 60,
@@ -193,7 +196,7 @@ class HealthService {
         startTime: now,
         endTime: now,
       );
-      
+
       // Write heart rate
       success &= await _health.writeHealthData(
         value: heartRate,
@@ -201,11 +204,10 @@ class HealthService {
         startTime: now,
         endTime: now,
       );
-      
+
       return success;
     } catch (e) {
       return false;
     }
   }
 }
-

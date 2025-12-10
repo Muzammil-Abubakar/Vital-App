@@ -20,8 +20,10 @@ class MedicationTrackingService {
 
     try {
       final prescriptionService = PrescriptionService();
-      final snapshot = await prescriptionService.getPrescriptionsForPatient(user.uid).first;
-      
+      final snapshot = await prescriptionService
+          .getPrescriptionsForPatient(user.uid)
+          .first;
+
       for (var doc in snapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
         await syncMedicationsFromPrescription(doc.id, data);
@@ -33,7 +35,10 @@ class MedicationTrackingService {
   }
 
   // Sync medications to denormalized collection for faster access
-  Future<void> syncMedicationsFromPrescription(String prescriptionId, Map<String, dynamic> prescriptionData) async {
+  Future<void> syncMedicationsFromPrescription(
+    String prescriptionId,
+    Map<String, dynamic> prescriptionData,
+  ) async {
     final user = _auth.currentUser;
     if (user == null) throw 'No user logged in';
 
@@ -47,8 +52,11 @@ class MedicationTrackingService {
       createdAt = DateTime.now();
     }
 
-    final medicines = List<Map<String, dynamic>>.from(prescriptionData['medicines'] ?? []);
-    final clinicianName = prescriptionData['clinicianName'] as String? ?? 'Unknown';
+    final medicines = List<Map<String, dynamic>>.from(
+      prescriptionData['medicines'] ?? [],
+    );
+    final clinicianName =
+        prescriptionData['clinicianName'] as String? ?? 'Unknown';
 
     if (medicines.isEmpty) {
       return; // No medicines to sync
@@ -62,7 +70,7 @@ class MedicationTrackingService {
       final name = medicine['name'] as String? ?? 'Unknown';
       final duration = medicine['duration'] as int? ?? 0;
       final timesPerDay = medicine['timesPerDay'] as int? ?? 0;
-      
+
       if (duration <= 0 || timesPerDay <= 0) {
         continue; // Skip invalid medications
       }
@@ -71,9 +79,12 @@ class MedicationTrackingService {
       final endDateOnly = DateTime(endDate.year, endDate.month, endDate.day);
 
       // Only sync if medication is still active (end date is today or in the future)
-      if (endDateOnly.isAfter(todayOnly) || endDateOnly.isAtSameMomentAs(todayOnly)) {
+      if (endDateOnly.isAfter(todayOnly) ||
+          endDateOnly.isAtSameMomentAs(todayOnly)) {
         // Create unique ID using prescription ID and medicine name (sanitize name)
-        final sanitizedName = name.replaceAll(' ', '_').replaceAll(RegExp(r'[^\w]'), '');
+        final sanitizedName = name
+            .replaceAll(' ', '_')
+            .replaceAll(RegExp(r'[^\w]'), '');
         final medicationId = '${prescriptionId}_$sanitizedName';
         final medicationRef = _firestore
             .collection('patients')
@@ -110,7 +121,7 @@ class MedicationTrackingService {
 
     final today = DateTime.now();
     final todayOnly = DateTime(today.year, today.month, today.day);
-    
+
     // Get all and filter client-side to avoid index requirement
     final snapshot = await _firestore
         .collection('patients')
@@ -122,9 +133,14 @@ class MedicationTrackingService {
         .map((doc) {
           final data = doc.data();
           final endDate = (data['endDate'] as Timestamp).toDate();
-          final endDateOnly = DateTime(endDate.year, endDate.month, endDate.day);
+          final endDateOnly = DateTime(
+            endDate.year,
+            endDate.month,
+            endDate.day,
+          );
           // Filter active medications client-side
-          if (endDateOnly.isAfter(todayOnly) || endDateOnly.isAtSameMomentAs(todayOnly)) {
+          if (endDateOnly.isAfter(todayOnly) ||
+              endDateOnly.isAtSameMomentAs(todayOnly)) {
             return {
               'prescriptionId': data['prescriptionId'],
               'medicineName': data['medicineName'],
@@ -150,14 +166,19 @@ class MedicationTrackingService {
             .doc(user.uid)
             .collection('active_medications')
             .get();
-        
+
         final todayOnlyRetry = DateTime(today.year, today.month, today.day);
         return retrySnapshot.docs
             .map((doc) {
               final data = doc.data();
               final endDate = (data['endDate'] as Timestamp).toDate();
-              final endDateOnly = DateTime(endDate.year, endDate.month, endDate.day);
-              if (endDateOnly.isAfter(todayOnlyRetry) || endDateOnly.isAtSameMomentAs(todayOnlyRetry)) {
+              final endDateOnly = DateTime(
+                endDate.year,
+                endDate.month,
+                endDate.day,
+              );
+              if (endDateOnly.isAfter(todayOnlyRetry) ||
+                  endDateOnly.isAtSameMomentAs(todayOnlyRetry)) {
                 return {
                   'prescriptionId': data['prescriptionId'],
                   'medicineName': data['medicineName'],
@@ -193,27 +214,28 @@ class MedicationTrackingService {
         .collection('active_medications')
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .map((doc) {
-            final data = doc.data();
-            final endDate = (data['endDate'] as Timestamp).toDate();
-            // Filter active medications client-side
-            if (today.isBefore(endDate) || today.isAtSameMomentAs(endDate)) {
-              return {
-                'prescriptionId': data['prescriptionId'],
-                'medicineName': data['medicineName'],
-                'duration': data['duration'],
-                'timesPerDay': data['timesPerDay'],
-                'startDate': (data['startDate'] as Timestamp).toDate(),
-                'endDate': endDate,
-                'clinicianName': data['clinicianName'],
-              };
-            }
-            return null;
-          })
-          .whereType<Map<String, dynamic>>()
-          .toList();
-    });
+          return snapshot.docs
+              .map((doc) {
+                final data = doc.data();
+                final endDate = (data['endDate'] as Timestamp).toDate();
+                // Filter active medications client-side
+                if (today.isBefore(endDate) ||
+                    today.isAtSameMomentAs(endDate)) {
+                  return {
+                    'prescriptionId': data['prescriptionId'],
+                    'medicineName': data['medicineName'],
+                    'duration': data['duration'],
+                    'timesPerDay': data['timesPerDay'],
+                    'startDate': (data['startDate'] as Timestamp).toDate(),
+                    'endDate': endDate,
+                    'clinicianName': data['clinicianName'],
+                  };
+                }
+                return null;
+              })
+              .whereType<Map<String, dynamic>>()
+              .toList();
+        });
   }
 
   // Mark medication as taken for a specific date and time
@@ -221,7 +243,8 @@ class MedicationTrackingService {
     required String prescriptionId,
     required String medicineName,
     required DateTime date,
-    required int timeIndex, // 0-based index for which time of day (e.g., 0 = first time, 1 = second time)
+    required int
+    timeIndex, // 0-based index for which time of day (e.g., 0 = first time, 1 = second time)
   }) async {
     final user = _auth.currentUser;
     if (user == null) throw 'No user logged in';
@@ -279,10 +302,12 @@ class MedicationTrackingService {
     required int timeIndex,
   }) async {
     final checkIns = await getCheckInsForDate(date);
-    return checkIns.any((checkIn) =>
-        checkIn['prescriptionId'] == prescriptionId &&
-        checkIn['medicineName'] == medicineName &&
-        checkIn['timeIndex'] == timeIndex);
+    return checkIns.any(
+      (checkIn) =>
+          checkIn['prescriptionId'] == prescriptionId &&
+          checkIn['medicineName'] == medicineName &&
+          checkIn['timeIndex'] == timeIndex,
+    );
   }
 
   // Get medication status for a specific date (taken/missed/pending) - optimized
@@ -292,7 +317,7 @@ class MedicationTrackingService {
       getActiveMedications(),
       getCheckInsForDate(date),
     ]);
-    
+
     final activeMedications = results[0];
     final checkIns = results[1];
     final dateKey = _getDateKey(date);
@@ -308,19 +333,25 @@ class MedicationTrackingService {
 
       // Check if medication should be active on this date
       final dateOnly = DateTime(date.year, date.month, date.day);
-      final startDateOnly = DateTime(startDate.year, startDate.month, startDate.day);
+      final startDateOnly = DateTime(
+        startDate.year,
+        startDate.month,
+        startDate.day,
+      );
       final endDateOnly = DateTime(endDate.year, endDate.month, endDate.day);
-      
+
       if (dateOnly.isBefore(startDateOnly) || dateOnly.isAfter(endDateOnly)) {
         continue; // Skip if not active on this date
       }
 
       final List<Map<String, dynamic>> timeSlots = [];
       for (int i = 0; i < timesPerDay; i++) {
-        final isTaken = checkIns.any((checkIn) =>
-            checkIn['prescriptionId'] == prescriptionId &&
-            checkIn['medicineName'] == medicineName &&
-            checkIn['timeIndex'] == i);
+        final isTaken = checkIns.any(
+          (checkIn) =>
+              checkIn['prescriptionId'] == prescriptionId &&
+              checkIn['medicineName'] == medicineName &&
+              checkIn['timeIndex'] == i,
+        );
 
         // Check if missed: date is in the past and medication wasn't taken
         final now = DateTime.now();
@@ -343,10 +374,7 @@ class MedicationTrackingService {
       });
     }
 
-    return {
-      'date': dateKey,
-      'medications': medicationsWithStatus,
-    };
+    return {'date': dateKey, 'medications': medicationsWithStatus};
   }
 
   // Get all missed medications (past dates where medication wasn't taken)
@@ -362,8 +390,10 @@ class MedicationTrackingService {
       for (var medication in status['medications'] as List) {
         if (medication['hasMissed'] == true) {
           final timeSlots = medication['timeSlots'] as List;
-          final missedSlots = timeSlots.where((slot) => slot['isMissed'] == true).toList();
-          
+          final missedSlots = timeSlots
+              .where((slot) => slot['isMissed'] == true)
+              .toList();
+
           for (var slot in missedSlots) {
             missed.add({
               'prescriptionId': medication['prescriptionId'],
@@ -381,4 +411,3 @@ class MedicationTrackingService {
     return missed;
   }
 }
-

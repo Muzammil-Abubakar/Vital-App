@@ -61,7 +61,9 @@ class PrescriptionHistoryScreen extends StatelessWidget {
           final prescriptions = snapshot.data!.docs;
 
           // Sort by createdAt (most recent first) client-side
-          final sortedPrescriptions = List<QueryDocumentSnapshot>.from(prescriptions);
+          final sortedPrescriptions = List<QueryDocumentSnapshot>.from(
+            prescriptions,
+          );
           sortedPrescriptions.sort((a, b) {
             final aData = a.data() as Map<String, dynamic>;
             final bData = b.data() as Map<String, dynamic>;
@@ -81,14 +83,22 @@ class PrescriptionHistoryScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final prescription = sortedPrescriptions[index];
               final data = prescription.data() as Map<String, dynamic>;
-              
+
               final patientName = data['patientName'] as String? ?? 'Unknown';
               final patientEmail = data['patientEmail'] as String? ?? '';
               final createdAt = data['createdAt'] as Timestamp?;
-              final recommendedFoods = List<String>.from(data['recommendedFoods'] ?? []);
-              final recommendedExercises = List<String>.from(data['recommendedExercises'] ?? []);
-              final medicines = List<Map<String, dynamic>>.from(data['medicines'] ?? []);
-              final appointments = List<Map<String, dynamic>>.from(data['appointments'] ?? []);
+              final recommendedFoods = List<String>.from(
+                data['recommendedFoods'] ?? [],
+              );
+              final recommendedExercises = List<String>.from(
+                data['recommendedExercises'] ?? [],
+              );
+              final medicines = List<Map<String, dynamic>>.from(
+                data['medicines'] ?? [],
+              );
+              final appointments = List<Map<String, dynamic>>.from(
+                data['appointments'] ?? [],
+              );
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 16),
@@ -130,35 +140,59 @@ class PrescriptionHistoryScreen extends StatelessWidget {
                         children: [
                           // Recommended Foods
                           if (recommendedFoods.isNotEmpty) ...[
-                            _buildSectionHeader('Recommended Foods', Icons.restaurant),
+                            _buildSectionHeader(
+                              'Recommended Foods',
+                              Icons.restaurant,
+                            ),
                             const SizedBox(height: 8),
-                            ...recommendedFoods.map((food) => Padding(
-                              padding: const EdgeInsets.only(left: 8, bottom: 4),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.check_circle, size: 16, color: Colors.green),
-                                  const SizedBox(width: 8),
-                                  Expanded(child: Text(food)),
-                                ],
+                            ...recommendedFoods.map(
+                              (food) => Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 8,
+                                  bottom: 4,
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.check_circle,
+                                      size: 16,
+                                      color: Colors.green,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(child: Text(food)),
+                                  ],
+                                ),
                               ),
-                            )),
+                            ),
                             const SizedBox(height: 16),
                           ],
 
                           // Recommended Exercises
                           if (recommendedExercises.isNotEmpty) ...[
-                            _buildSectionHeader('Recommended Exercises', Icons.fitness_center),
+                            _buildSectionHeader(
+                              'Recommended Exercises',
+                              Icons.fitness_center,
+                            ),
                             const SizedBox(height: 8),
-                            ...recommendedExercises.map((exercise) => Padding(
-                              padding: const EdgeInsets.only(left: 8, bottom: 4),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.check_circle, size: 16, color: Colors.green),
-                                  const SizedBox(width: 8),
-                                  Expanded(child: Text(exercise)),
-                                ],
+                            ...recommendedExercises.map(
+                              (exercise) => Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 8,
+                                  bottom: 4,
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.check_circle,
+                                      size: 16,
+                                      color: Colors.green,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(child: Text(exercise)),
+                                  ],
+                                ),
                               ),
-                            )),
+                            ),
                             const SizedBox(height: 16),
                           ],
 
@@ -167,17 +201,24 @@ class PrescriptionHistoryScreen extends StatelessWidget {
                             _buildSectionHeader('Medicines', Icons.medication),
                             const SizedBox(height: 8),
                             ...medicines.map((medicine) {
-                              final name = medicine['name'] as String? ?? 'Unknown';
-                              final duration = medicine['duration'] as int? ?? 0;
-                              final timesPerDay = medicine['timesPerDay'] as int? ?? 0;
+                              final name =
+                                  medicine['name'] as String? ?? 'Unknown';
+                              final duration =
+                                  medicine['duration'] as int? ?? 0;
+                              final timesPerDay =
+                                  medicine['timesPerDay'] as int? ?? 0;
                               return Padding(
-                                padding: const EdgeInsets.only(left: 8, bottom: 8),
+                                padding: const EdgeInsets.only(
+                                  left: 8,
+                                  bottom: 8,
+                                ),
                                 child: Card(
                                   color: Colors.blue.withValues(alpha: 0.1),
                                   child: Padding(
                                     padding: const EdgeInsets.all(12),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           name,
@@ -205,22 +246,31 @@ class PrescriptionHistoryScreen extends StatelessWidget {
 
                           // Appointments
                           if (appointments.isNotEmpty) ...[
-                            _buildSectionHeader('Appointments', Icons.calendar_today),
+                            _buildSectionHeader(
+                              'Appointments',
+                              Icons.calendar_today,
+                            ),
                             const SizedBox(height: 8),
                             ...appointments.map((appointment) {
-                              final title = appointment['title'] as String? ?? 'Untitled';
+                              final title =
+                                  appointment['title'] as String? ?? 'Untitled';
                               Timestamp? dateTimestamp;
                               if (appointment['date'] is Timestamp) {
-                                dateTimestamp = appointment['date'] as Timestamp;
+                                dateTimestamp =
+                                    appointment['date'] as Timestamp;
                               }
                               return Padding(
-                                padding: const EdgeInsets.only(left: 8, bottom: 8),
+                                padding: const EdgeInsets.only(
+                                  left: 8,
+                                  bottom: 8,
+                                ),
                                 child: Card(
                                   color: Colors.orange.withValues(alpha: 0.1),
                                   child: Padding(
                                     padding: const EdgeInsets.all(12),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           title,
@@ -276,4 +326,3 @@ class PrescriptionHistoryScreen extends StatelessWidget {
     );
   }
 }
-

@@ -85,9 +85,7 @@ class _MedicalDocumentsScreenState extends State<MedicalDocumentsScreen> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Delete'),
           ),
         ],
@@ -141,9 +139,7 @@ class _MedicalDocumentsScreenState extends State<MedicalDocumentsScreen> {
           ),
           ElevatedButton(
             onPressed: _isLoading ? null : _addDocument,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
             child: _isLoading
                 ? const SizedBox(
                     height: 20,
@@ -287,18 +283,11 @@ class _MedicalDocumentsScreenState extends State<MedicalDocumentsScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.folder_open,
-                    size: 64,
-                    color: Colors.grey,
-                  ),
+                  const Icon(Icons.folder_open, size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
                   const Text(
                     'No medical documents yet',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.grey,
-                    ),
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
                   ),
                   const SizedBox(height: 8),
                   const Text(
@@ -329,9 +318,7 @@ class _MedicalDocumentsScreenState extends State<MedicalDocumentsScreen> {
                   ),
                   title: Text(
                     name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: date != null
                       ? Text(
@@ -386,4 +373,3 @@ class _MedicalDocumentsScreenState extends State<MedicalDocumentsScreen> {
     );
   }
 }
-

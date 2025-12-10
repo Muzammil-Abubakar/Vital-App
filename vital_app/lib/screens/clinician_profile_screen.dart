@@ -97,10 +97,10 @@ class _ClinicianProfileScreenState extends State<ClinicianProfileScreen> {
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _errorMessage != null
-                ? _buildErrorState()
-                : _userProfile == null
-                    ? _buildEmptyState()
-                    : _buildProfileContent(),
+            ? _buildErrorState()
+            : _userProfile == null
+            ? _buildEmptyState()
+            : _buildProfileContent(),
       ),
     );
   }
@@ -153,7 +153,7 @@ class _ClinicianProfileScreenState extends State<ClinicianProfileScreen> {
 
   Widget _buildProfileContent() {
     final isVerified = _userProfile!['verified'] == true;
-    
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -164,10 +164,7 @@ class _ClinicianProfileScreenState extends State<ClinicianProfileScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  _primaryColor,
-                  _accentColor,
-                ],
+                colors: [_primaryColor, _accentColor],
               ),
             ),
             child: SafeArea(
@@ -233,7 +230,9 @@ class _ClinicianProfileScreenState extends State<ClinicianProfileScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      _userProfile!['email'] ?? _authService.currentUser?.email ?? '',
+                      _userProfile!['email'] ??
+                          _authService.currentUser?.email ??
+                          '',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.white.withValues(alpha: 0.9),
@@ -339,13 +338,15 @@ class _ClinicianProfileScreenState extends State<ClinicianProfileScreen> {
                             _buildInfoRow(
                               icon: Icons.calendar_today,
                               label: 'Age',
-                              value: _userProfile!['age']?.toString() ?? 'Not set',
+                              value:
+                                  _userProfile!['age']?.toString() ?? 'Not set',
                             ),
                             const Divider(height: 32),
                             _buildInfoRow(
                               icon: Icons.email,
                               label: 'Email',
-                              value: _userProfile!['email'] ??
+                              value:
+                                  _userProfile!['email'] ??
                                   _authService.currentUser?.email ??
                                   'Not set',
                             ),
@@ -469,9 +470,7 @@ class _ClinicianProfileScreenState extends State<ClinicianProfileScreen> {
   }) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
@@ -514,10 +513,7 @@ class _ClinicianProfileScreenState extends State<ClinicianProfileScreen> {
                     const SizedBox(height: 4),
                     Text(
                       description,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                     ),
                   ],
                 ),

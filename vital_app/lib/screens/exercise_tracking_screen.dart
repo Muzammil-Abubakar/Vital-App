@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/exercise_data_service.dart';
 import '../services/prescription_service.dart';
+import '../theme/patient_theme.dart';
 
 class ExerciseTrackingScreen extends StatefulWidget {
   const ExerciseTrackingScreen({super.key});
@@ -13,15 +14,15 @@ class ExerciseTrackingScreen extends StatefulWidget {
 class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
   final _exerciseDataService = ExerciseDataService();
   final _prescriptionService = PrescriptionService();
-  
+
   bool _isLoading = true;
-  
+
   // Exercise data
   List<Map<String, dynamic>> _exercises = [];
-  
+
   // Recommended exercises from prescriptions
   List<String> _recommendedExercises = [];
-  
+
   // Controllers for adding new exercise
   final _exerciseTypeController = TextEditingController();
   String _exerciseMode = 'duration'; // 'duration' or 'reps'
@@ -52,10 +53,12 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
 
     try {
       final exerciseData = await _exerciseDataService.getTodayExerciseData();
-      
+
       if (exerciseData != null) {
         setState(() {
-          _exercises = List<Map<String, dynamic>>.from(exerciseData['exercises'] ?? []);
+          _exercises = List<Map<String, dynamic>>.from(
+            exerciseData['exercises'] ?? [],
+          );
         });
       } else {
         setState(() {
@@ -83,12 +86,16 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
     if (user == null) return;
 
     try {
-      final snapshot = await _prescriptionService.getPrescriptionsForPatient(user.uid).first;
+      final snapshot = await _prescriptionService
+          .getPrescriptionsForPatient(user.uid)
+          .first;
       final Set<String> allRecommendedExercises = {};
 
       for (var doc in snapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
-        final recommendedExercises = List<String>.from(data['recommendedExercises'] ?? []);
+        final recommendedExercises = List<String>.from(
+          data['recommendedExercises'] ?? [],
+        );
         allRecommendedExercises.addAll(recommendedExercises);
       }
 
@@ -150,7 +157,7 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
     } else {
       final reps = _repsController.text.trim();
       final sets = _setsController.text.trim();
-      
+
       if (reps.isEmpty || sets.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -160,11 +167,14 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
         );
         return;
       }
-      
+
       final repsValue = int.tryParse(reps);
       final setsValue = int.tryParse(sets);
-      
-      if (repsValue == null || repsValue <= 0 || setsValue == null || setsValue <= 0) {
+
+      if (repsValue == null ||
+          repsValue <= 0 ||
+          setsValue == null ||
+          setsValue <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Please enter valid reps and sets'),
@@ -173,7 +183,7 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
         );
         return;
       }
-      
+
       exerciseData['reps'] = repsValue;
       exerciseData['sets'] = setsValue;
     }
@@ -201,9 +211,7 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
 
   Future<void> _saveExerciseData() async {
     try {
-      await _exerciseDataService.storeDailyExerciseData(
-        exercises: _exercises,
-      );
+      await _exerciseDataService.storeDailyExerciseData(exercises: _exercises);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -229,6 +237,11 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
     return StatefulBuilder(
       builder: (context, setDialogState) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              PatientTheme.borderRadiusMedium,
+            ),
+          ),
           title: const Text('Add Exercise'),
           content: SingleChildScrollView(
             child: Column(
@@ -236,10 +249,16 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
               children: [
                 TextField(
                   controller: _exerciseTypeController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Exercise Type',
-                    prefixIcon: Icon(Icons.fitness_center),
-                    border: OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.fitness_center),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(
+                        PatientTheme.borderRadiusSmall,
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[50],
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -267,10 +286,16 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
                 if (_exerciseMode == 'duration')
                   TextField(
                     controller: _durationController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Duration (minutes)',
-                      prefixIcon: Icon(Icons.timer),
-                      border: OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.timer),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          PatientTheme.borderRadiusSmall,
+                        ),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
                     ),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -281,26 +306,42 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
                       Expanded(
                         child: TextField(
                           controller: _repsController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Reps',
-                            prefixIcon: Icon(Icons.repeat),
-                            border: OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.repeat),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                PatientTheme.borderRadiusSmall,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey[50],
                           ),
                           keyboardType: TextInputType.number,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: TextField(
                           controller: _setsController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Sets',
-                            prefixIcon: Icon(Icons.layers),
-                            border: OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.layers),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                PatientTheme.borderRadiusSmall,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey[50],
                           ),
                           keyboardType: TextInputType.number,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
                         ),
                       ),
                     ],
@@ -319,13 +360,19 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
               },
               child: const Text('Cancel'),
             ),
-            ElevatedButton(
+            FilledButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 _addExercise();
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.purple[700],
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    PatientTheme.borderRadiusSmall,
+                  ),
+                ),
               ),
               child: const Text('Add'),
             ),
@@ -347,20 +394,20 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Exercise Tracking'),
-          backgroundColor: Colors.blue,
+        backgroundColor: PatientTheme.surfaceColor,
+        appBar: PatientTheme.buildAppBar(
+          title: 'Exercise Tracking',
+          backgroundColor: Colors.purple[700]!,
         ),
-        body: const Center(
-          child: CircularProgressIndicator(),
-        ),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Exercise Tracking'),
-        backgroundColor: Colors.blue,
+      backgroundColor: PatientTheme.surfaceColor,
+      appBar: PatientTheme.buildAppBar(
+        title: 'Exercise Tracking',
+        backgroundColor: Colors.purple[700]!,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -374,117 +421,184 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
           await _loadExerciseData();
           await _loadRecommendedExercises();
         },
+        color: Colors.purple[700],
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 20),
               // Recommended Exercises Section
               if (_recommendedExercises.isNotEmpty) ...[
-                Card(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.check_circle, color: Colors.green),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'Recommended Exercises',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
+                PatientTheme.buildCard(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(20),
+                  gradientColors: [
+                    PatientTheme.primaryColor.withValues(alpha: 0.1),
+                    PatientTheme.primaryColor.withValues(alpha: 0.05),
+                  ],
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: PatientTheme.primaryColor.withValues(
+                                alpha: 0.15,
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                PatientTheme.borderRadiusSmall,
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: _recommendedExercises.map((exercise) {
-                            return Chip(
-                              label: Text(exercise),
-                              backgroundColor: Colors.green.withValues(alpha: 0.2),
-                              avatar: const Icon(Icons.fitness_center, size: 18, color: Colors.green),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
+                            child: const Icon(
+                              Icons.check_circle,
+                              color: PatientTheme.primaryColor,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Recommended Exercises',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: PatientTheme.primaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _recommendedExercises.map((exercise) {
+                          return Chip(
+                            label: Text(exercise),
+                            backgroundColor: PatientTheme.primaryColor
+                                .withValues(alpha: 0.15),
+                            avatar: const Icon(
+                              Icons.fitness_center,
+                              size: 18,
+                              color: PatientTheme.primaryColor,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
                   ),
                 ),
+                const SizedBox(height: 20),
               ],
 
               // Exercises List
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Exercises',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: Colors.grey[800],
                       ),
                     ),
-                    ElevatedButton.icon(
+                    FilledButton.icon(
                       onPressed: () {
                         showDialog(
                           context: context,
                           builder: (context) => _buildAddExerciseDialog(),
                         );
                       },
-                      icon: const Icon(Icons.add),
+                      icon: const Icon(Icons.add, size: 18),
                       label: const Text('Add Exercise'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.purple[700],
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            PatientTheme.borderRadiusSmall,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: 12),
 
               if (_exercises.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Center(
-                    child: Text(
-                      'No exercises added yet.\nTap "Add Exercise" to get started!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey),
-                    ),
+                PatientTheme.buildCard(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(40),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.fitness_center_outlined,
+                        size: 64,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No exercises added yet.\nTap "Add Exercise" to get started!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                      ),
+                    ],
                   ),
                 )
               else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _exercises.length,
-                  itemBuilder: (context, index) {
-                    final exercise = _exercises[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      child: ListTile(
-                        leading: const Icon(Icons.fitness_center, color: Colors.blue),
-                        title: Text(exercise['type'] as String),
-                        subtitle: Text(_formatExerciseData(exercise)),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _removeExercise(index),
+                ...List.generate(_exercises.length, (index) {
+                  final exercise = _exercises[index];
+                  return PatientTheme.buildCard(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 6,
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.purple[100],
+                          borderRadius: BorderRadius.circular(
+                            PatientTheme.borderRadiusSmall,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.fitness_center,
+                          color: Colors.purple[700],
+                          size: 20,
                         ),
                       ),
-                    );
-                  },
-                ),
+                      title: Text(
+                        exercise['type'] as String,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: Text(
+                        _formatExerciseData(exercise),
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(
+                          Icons.delete_outline,
+                          color: Colors.red[300],
+                        ),
+                        onPressed: () => _removeExercise(index),
+                      ),
+                    ),
+                  );
+                }),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -492,4 +606,3 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
     );
   }
 }
-

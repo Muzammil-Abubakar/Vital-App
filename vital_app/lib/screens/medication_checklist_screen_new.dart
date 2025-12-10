@@ -34,7 +34,9 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
       await _dailyTrackingService.checkAndMarkMissed(_selectedDate);
 
       // Load daily tracking for selected date
-      final tracking = await _dailyTrackingService.getDailyTracking(_selectedDate);
+      final tracking = await _dailyTrackingService.getDailyTracking(
+        _selectedDate,
+      );
 
       if (mounted) {
         setState(() {
@@ -66,7 +68,11 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
     try {
       // Can only check medications for today
       final now = DateTime.now();
-      final dateOnly = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day);
+      final dateOnly = DateTime(
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
+      );
       final todayOnly = DateTime(now.year, now.month, now.day);
 
       if (dateOnly.isBefore(todayOnly)) {
@@ -180,7 +186,10 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                           padding: const EdgeInsets.all(16),
                           child: Row(
                             children: [
-                              const Icon(Icons.calendar_today, color: Colors.indigo),
+                              const Icon(
+                                Icons.calendar_today,
+                                color: Colors.indigo,
+                              ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
@@ -195,7 +204,9 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      DateFormat('MMM dd, yyyy').format(_selectedDate),
+                                      DateFormat(
+                                        'MMM dd, yyyy',
+                                      ).format(_selectedDate),
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -228,7 +239,11 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                                   ),
                                 ),
                               const SizedBox(width: 8),
-                              const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                              const Icon(
+                                Icons.arrow_forward_ios,
+                                size: 16,
+                                color: Colors.grey,
+                              ),
                             ],
                           ),
                         ),
@@ -248,204 +263,266 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                         ),
                       )
                     else
-                      ...(_dailyTracking!['medications'] as Map<String, dynamic>)
+                      ...(_dailyTracking!['medications']
+                              as Map<String, dynamic>)
                           .entries
                           .map((medicineEntry) {
-                        final medicineName = medicineEntry.key;
-                        final timeSlots = medicineEntry.value as Map<String, dynamic>;
+                            final medicineName = medicineEntry.key;
+                            final timeSlots =
+                                medicineEntry.value as Map<String, dynamic>;
 
-                        // Parse time slots and determine status
-                        final List<Map<String, dynamic>> parsedSlots = [];
-                        timeSlots.forEach((key, value) {
-                          // Extract time index from key (e.g., "panadol_1" -> 1)
-                          final match = RegExp(r'_(\d+)$').firstMatch(key);
-                          if (match != null) {
-                            final timeIndex = int.parse(match.group(1)!);
-                            parsedSlots.add({
-                              'timeIndex': timeIndex,
-                              'status': value as String,
+                            // Parse time slots and determine status
+                            final List<Map<String, dynamic>> parsedSlots = [];
+                            timeSlots.forEach((key, value) {
+                              // Extract time index from key (e.g., "panadol_1" -> 1)
+                              final match = RegExp(r'_(\d+)$').firstMatch(key);
+                              if (match != null) {
+                                final timeIndex = int.parse(match.group(1)!);
+                                parsedSlots.add({
+                                  'timeIndex': timeIndex,
+                                  'status': value as String,
+                                });
+                              }
                             });
-                          }
-                        });
 
-                        // Sort by time index
-                        parsedSlots.sort((a, b) =>
-                            (a['timeIndex'] as int).compareTo(b['timeIndex'] as int));
+                            // Sort by time index
+                            parsedSlots.sort(
+                              (a, b) => (a['timeIndex'] as int).compareTo(
+                                b['timeIndex'] as int,
+                              ),
+                            );
 
-                        final allChecked = parsedSlots.every(
-                            (slot) => slot['status'] == 'checked');
-                        final hasMissed = parsedSlots.any(
-                            (slot) => slot['status'] == 'missed');
+                            final allChecked = parsedSlots.every(
+                              (slot) => slot['status'] == 'checked',
+                            );
+                            final hasMissed = parsedSlots.any(
+                              (slot) => slot['status'] == 'missed',
+                            );
 
-                        return Card(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
-                              color: allChecked
-                                  ? Colors.teal.withValues(alpha: 0.3)
-                                  : hasMissed
+                            return Card(
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: allChecked
+                                      ? Colors.teal.withValues(alpha: 0.3)
+                                      : hasMissed
                                       ? Colors.orange.withValues(alpha: 0.3)
                                       : Colors.grey.withValues(alpha: 0.2),
-                              width: 1.5,
-                            ),
-                          ),
-                          color: allChecked
-                              ? Colors.teal.withValues(alpha: 0.08)
-                              : hasMissed
+                                  width: 1.5,
+                                ),
+                              ),
+                              color: allChecked
+                                  ? Colors.teal.withValues(alpha: 0.08)
+                                  : hasMissed
                                   ? Colors.orange.withValues(alpha: 0.08)
                                   : Colors.grey.withValues(alpha: 0.05),
-                          child: ExpansionTile(
-                            leading: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: allChecked
-                                    ? Colors.teal.withValues(alpha: 0.2)
-                                    : hasMissed
+                              child: ExpansionTile(
+                                leading: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: allChecked
+                                        ? Colors.teal.withValues(alpha: 0.2)
+                                        : hasMissed
                                         ? Colors.orange.withValues(alpha: 0.2)
                                         : Colors.grey.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                allChecked
-                                    ? Icons.check_circle
-                                    : hasMissed
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    allChecked
+                                        ? Icons.check_circle
+                                        : hasMissed
                                         ? Icons.error_outline
                                         : Icons.radio_button_unchecked,
-                                color: allChecked
-                                    ? Colors.teal
-                                    : hasMissed
+                                    color: allChecked
+                                        ? Colors.teal
+                                        : hasMissed
                                         ? Colors.orange
                                         : Colors.grey,
-                                size: 20,
-                              ),
-                            ),
-                            title: Text(
-                              medicineName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            subtitle: Text(
-                              '${parsedSlots.length} time${parsedSlots.length > 1 ? 's' : ''} per day',
-                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                            ),
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  children: parsedSlots.map((slot) {
-                                    final timeIndex = slot['timeIndex'] as int;
-                                    final status = slot['status'] as String;
-                                    final isChecked = status == 'checked';
-                                    final isMissed = status == 'missed';
+                                    size: 20,
+                                  ),
+                                ),
+                                title: Text(
+                                  medicineName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  '${parsedSlots.length} time${parsedSlots.length > 1 ? 's' : ''} per day',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      children: parsedSlots.map((slot) {
+                                        final timeIndex =
+                                            slot['timeIndex'] as int;
+                                        final status = slot['status'] as String;
+                                        final isChecked = status == 'checked';
+                                        final isMissed = status == 'missed';
 
-                                    // Can only check today's medications
-                                    final now = DateTime.now();
-                                    final dateOnly = DateTime(
-                                      _selectedDate.year,
-                                      _selectedDate.month,
-                                      _selectedDate.day,
-                                    );
-                                    final todayOnly = DateTime(
-                                      now.year,
-                                      now.month,
-                                      now.day,
-                                    );
-                                    final canCheck = dateOnly.isAtSameMomentAs(todayOnly) &&
-                                        !isChecked;
+                                        // Can only check today's medications
+                                        final now = DateTime.now();
+                                        final dateOnly = DateTime(
+                                          _selectedDate.year,
+                                          _selectedDate.month,
+                                          _selectedDate.day,
+                                        );
+                                        final todayOnly = DateTime(
+                                          now.year,
+                                          now.month,
+                                          now.day,
+                                        );
+                                        final canCheck =
+                                            dateOnly.isAtSameMomentAs(
+                                              todayOnly,
+                                            ) &&
+                                            !isChecked;
 
-                                    return Container(
-                                      margin: const EdgeInsets.only(bottom: 8),
-                                      decoration: BoxDecoration(
-                                        color: isChecked
-                                            ? Colors.teal.withValues(alpha: 0.15)
-                                            : isMissed
-                                                ? Colors.orange.withValues(alpha: 0.15)
-                                                : Colors.grey.withValues(alpha: 0.08),
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: isChecked
-                                              ? Colors.teal.withValues(alpha: 0.3)
-                                              : isMissed
-                                                  ? Colors.orange.withValues(alpha: 0.3)
-                                                  : Colors.grey.withValues(alpha: 0.2),
-                                        ),
-                                      ),
-                                      child: CheckboxListTile(
-                                        value: isChecked,
-                                        onChanged: canCheck
-                                            ? (value) => _toggleMedication(
-                                                  medicineName: medicineName,
-                                                  timeIndex: timeIndex,
-                                                  currentStatus: status,
-                                                )
-                                            : null,
-                                        title: Text(
-                                          'Time $timeIndex',
-                                          style: const TextStyle(fontWeight: FontWeight.w500),
-                                        ),
-                                        subtitle: Padding(
-                                          padding: const EdgeInsets.only(top: 4),
-                                          child: isChecked
-                                              ? Row(
-                                                  children: [
-                                                    Icon(Icons.check_circle,
-                                                        size: 14, color: Colors.teal[700]),
-                                                    const SizedBox(width: 4),
-                                                    Text(
-                                                      'Taken',
-                                                      style: TextStyle(
-                                                          color: Colors.teal[700], fontSize: 12),
+                                        return Container(
+                                          margin: const EdgeInsets.only(
+                                            bottom: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: isChecked
+                                                ? Colors.teal.withValues(
+                                                    alpha: 0.15,
+                                                  )
+                                                : isMissed
+                                                ? Colors.orange.withValues(
+                                                    alpha: 0.15,
+                                                  )
+                                                : Colors.grey.withValues(
+                                                    alpha: 0.08,
+                                                  ),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                            border: Border.all(
+                                              color: isChecked
+                                                  ? Colors.teal.withValues(
+                                                      alpha: 0.3,
+                                                    )
+                                                  : isMissed
+                                                  ? Colors.orange.withValues(
+                                                      alpha: 0.3,
+                                                    )
+                                                  : Colors.grey.withValues(
+                                                      alpha: 0.2,
                                                     ),
-                                                  ],
-                                                )
-                                              : isMissed
+                                            ),
+                                          ),
+                                          child: CheckboxListTile(
+                                            value: isChecked,
+                                            onChanged: canCheck
+                                                ? (value) => _toggleMedication(
+                                                    medicineName: medicineName,
+                                                    timeIndex: timeIndex,
+                                                    currentStatus: status,
+                                                  )
+                                                : null,
+                                            title: Text(
+                                              'Time $timeIndex',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            subtitle: Padding(
+                                              padding: const EdgeInsets.only(
+                                                top: 4,
+                                              ),
+                                              child: isChecked
                                                   ? Row(
                                                       children: [
-                                                        Icon(Icons.error_outline,
-                                                            size: 14, color: Colors.orange[700]),
-                                                        const SizedBox(width: 4),
+                                                        Icon(
+                                                          Icons.check_circle,
+                                                          size: 14,
+                                                          color:
+                                                              Colors.teal[700],
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 4,
+                                                        ),
+                                                        Text(
+                                                          'Taken',
+                                                          style: TextStyle(
+                                                            color: Colors
+                                                                .teal[700],
+                                                            fontSize: 12,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  : isMissed
+                                                  ? Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons.error_outline,
+                                                          size: 14,
+                                                          color: Colors
+                                                              .orange[700],
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 4,
+                                                        ),
                                                         Text(
                                                           'Missed',
                                                           style: TextStyle(
-                                                              color: Colors.orange[700],
-                                                              fontSize: 12),
+                                                            color: Colors
+                                                                .orange[700],
+                                                            fontSize: 12,
+                                                          ),
                                                         ),
                                                       ],
                                                     )
                                                   : Row(
                                                       children: [
-                                                        Icon(Icons.schedule,
-                                                            size: 14, color: Colors.grey[600]),
-                                                        const SizedBox(width: 4),
+                                                        Icon(
+                                                          Icons.schedule,
+                                                          size: 14,
+                                                          color:
+                                                              Colors.grey[600],
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 4,
+                                                        ),
                                                         Text(
                                                           'Pending',
                                                           style: TextStyle(
-                                                              color: Colors.grey[600], fontSize: 12),
+                                                            color: Colors
+                                                                .grey[600],
+                                                            fontSize: 12,
+                                                          ),
                                                         ),
                                                       ],
                                                     ),
-                                        ),
-                                        activeColor: Colors.teal,
-                                        checkColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
+                                            ),
+                                            activeColor: Colors.teal,
+                                            checkColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                            );
+                          })
+                          .toList(),
 
                     const SizedBox(height: 16),
                   ],
@@ -455,4 +532,3 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
     );
   }
 }
-

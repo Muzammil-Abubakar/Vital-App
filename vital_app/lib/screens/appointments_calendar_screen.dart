@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../services/appointment_tracking_service.dart';
+import '../theme/patient_theme.dart';
 
 class AppointmentsCalendarScreen extends StatefulWidget {
   const AppointmentsCalendarScreen({super.key});
 
   @override
-  State<AppointmentsCalendarScreen> createState() => _AppointmentsCalendarScreenState();
+  State<AppointmentsCalendarScreen> createState() =>
+      _AppointmentsCalendarScreenState();
 }
 
-class _AppointmentsCalendarScreenState extends State<AppointmentsCalendarScreen> {
+class _AppointmentsCalendarScreenState
+    extends State<AppointmentsCalendarScreen> {
   final _appointmentTrackingService = AppointmentTrackingService();
   bool _isLoading = true;
   List<Map<String, dynamic>> _allAppointments = [];
@@ -30,7 +33,8 @@ class _AppointmentsCalendarScreenState extends State<AppointmentsCalendarScreen>
     });
 
     try {
-      final appointments = await _appointmentTrackingService.getAppointmentsWithStatus();
+      final appointments = await _appointmentTrackingService
+          .getAppointmentsWithStatus();
 
       if (mounted) {
         setState(() {
@@ -53,7 +57,9 @@ class _AppointmentsCalendarScreenState extends State<AppointmentsCalendarScreen>
     }
   }
 
-  Future<void> _markAppointmentAttended(Map<String, dynamic> appointment) async {
+  Future<void> _markAppointmentAttended(
+    Map<String, dynamic> appointment,
+  ) async {
     try {
       await _appointmentTrackingService.markAppointmentAttended(
         prescriptionId: appointment['prescriptionId'] as String,
@@ -74,10 +80,7 @@ class _AppointmentsCalendarScreenState extends State<AppointmentsCalendarScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -93,7 +96,9 @@ class _AppointmentsCalendarScreenState extends State<AppointmentsCalendarScreen>
   }
 
   List<Map<String, dynamic>> _getUpcomingAppointments() {
-    return _allAppointments.where((appt) => appt['isUpcoming'] == true).toList();
+    return _allAppointments
+        .where((appt) => appt['isUpcoming'] == true)
+        .toList();
   }
 
   List<Map<String, dynamic>> _getMissedAppointments() {
@@ -105,24 +110,32 @@ class _AppointmentsCalendarScreenState extends State<AppointmentsCalendarScreen>
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Appointments Calendar'),
-          backgroundColor: Colors.purple,
-          bottom: const TabBar(
-            tabs: [
-              Tab(icon: Icon(Icons.calendar_today), text: 'Calendar'),
-              Tab(icon: Icon(Icons.upcoming), text: 'Upcoming'),
-              Tab(icon: Icon(Icons.warning), text: 'Missed'),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: _loadAppointments,
-              tooltip: 'Refresh',
-            ),
-          ],
-        ),
+        backgroundColor: PatientTheme.surfaceColor,
+        appBar:
+            AppBar(
+                  title: const Text('Appointments Calendar'),
+                  backgroundColor: Colors.teal[700],
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  bottom: TabBar(
+                    indicatorColor: Colors.white,
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.white70,
+                    tabs: const [
+                      Tab(icon: Icon(Icons.calendar_today), text: 'Calendar'),
+                      Tab(icon: Icon(Icons.upcoming), text: 'Upcoming'),
+                      Tab(icon: Icon(Icons.warning), text: 'Missed'),
+                    ],
+                  ),
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.refresh),
+                      onPressed: _loadAppointments,
+                      tooltip: 'Refresh',
+                    ),
+                  ],
+                )
+                as PreferredSizeWidget,
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : TabBarView(
@@ -183,31 +196,49 @@ class _AppointmentsCalendarScreenState extends State<AppointmentsCalendarScreen>
                           const SizedBox(height: 16),
                           // Appointments for selected day
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                const SizedBox(height: 20),
                                 Text(
                                   'Appointments on ${DateFormat('MMMM dd, yyyy').format(_selectedDay)}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
+                                    color: Colors.grey[800],
                                   ),
                                 ),
-                                const SizedBox(height: 8),
-                                ..._getAppointmentsForDay(_selectedDay).map((appt) {
+                                const SizedBox(height: 12),
+                                ..._getAppointmentsForDay(_selectedDay).map((
+                                  appt,
+                                ) {
                                   return _buildAppointmentCard(appt);
                                 }),
-                                if (_getAppointmentsForDay(_selectedDay).isEmpty)
-                                  const Padding(
-                                    padding: EdgeInsets.all(32),
-                                    child: Center(
-                                      child: Text(
-                                        'No appointments on this day.',
-                                        style: TextStyle(color: Colors.grey),
-                                      ),
+                                if (_getAppointmentsForDay(
+                                  _selectedDay,
+                                ).isEmpty)
+                                  PatientTheme.buildCard(
+                                    padding: const EdgeInsets.all(40),
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.event_busy,
+                                          size: 64,
+                                          color: Colors.grey[400],
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Text(
+                                          'No appointments on this day.',
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
+                                const SizedBox(height: 20),
                               ],
                             ),
                           ),
@@ -219,15 +250,33 @@ class _AppointmentsCalendarScreenState extends State<AppointmentsCalendarScreen>
                   // Upcoming Appointments
                   RefreshIndicator(
                     onRefresh: _loadAppointments,
+                    color: Colors.teal[700],
                     child: _getUpcomingAppointments().isEmpty
-                        ? const Center(
-                            child: Text(
-                              'No upcoming appointments.',
-                              style: TextStyle(color: Colors.grey),
+                        ? Center(
+                            child: PatientTheme.buildCard(
+                              margin: const EdgeInsets.all(20),
+                              padding: const EdgeInsets.all(40),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.upcoming_outlined,
+                                    size: 64,
+                                    color: Colors.grey[400],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No upcoming appointments.',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           )
                         : ListView.builder(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.symmetric(vertical: 20),
                             itemCount: _getUpcomingAppointments().length,
                             itemBuilder: (context, index) {
                               return _buildAppointmentCard(
@@ -240,15 +289,33 @@ class _AppointmentsCalendarScreenState extends State<AppointmentsCalendarScreen>
                   // Missed Appointments
                   RefreshIndicator(
                     onRefresh: _loadAppointments,
+                    color: Colors.teal[700],
                     child: _getMissedAppointments().isEmpty
-                        ? const Center(
-                            child: Text(
-                              'No missed appointments.',
-                              style: TextStyle(color: Colors.grey),
+                        ? Center(
+                            child: PatientTheme.buildCard(
+                              margin: const EdgeInsets.all(20),
+                              padding: const EdgeInsets.all(40),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.check_circle_outline,
+                                    size: 64,
+                                    color: Colors.grey[400],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No missed appointments.',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           )
                         : ListView.builder(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.symmetric(vertical: 20),
                             itemCount: _getMissedAppointments().length,
                             itemBuilder: (context, index) {
                               return _buildAppointmentCard(
@@ -288,52 +355,75 @@ class _AppointmentsCalendarScreenState extends State<AppointmentsCalendarScreen>
       statusText = 'Upcoming';
     }
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      color: cardColor.withValues(alpha: 0.1),
+    return PatientTheme.buildCard(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      padding: const EdgeInsets.all(16),
+      gradientColors: [
+        cardColor.withValues(alpha: 0.1),
+        cardColor.withValues(alpha: 0.05),
+      ],
       child: ListTile(
-        leading: Icon(statusIcon, color: cardColor, size: 32),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        contentPadding: EdgeInsets.zero,
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: cardColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(PatientTheme.borderRadiusSmall),
+          ),
+          child: Icon(statusIcon, color: cardColor, size: 24),
         ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 8),
+            Text(
+              'Date: ${DateFormat('MMMM dd, yyyy • hh:mm a').format(date)}',
+              style: TextStyle(color: Colors.grey[700], fontSize: 13),
+            ),
             const SizedBox(height: 4),
-            Text('Date: ${DateFormat('MMMM dd, yyyy • hh:mm a').format(date)}'),
-            Text('Clinician: $clinicianName'),
-            const SizedBox(height: 4),
+            Text(
+              'Clinician: $clinicianName',
+              style: TextStyle(color: Colors.grey[600], fontSize: 13),
+            ),
+            const SizedBox(height: 8),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: cardColor.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
+                color: cardColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(
+                  PatientTheme.borderRadiusSmall,
+                ),
               ),
               child: Text(
                 statusText.toUpperCase(),
                 style: TextStyle(
                   color: cardColor,
                   fontWeight: FontWeight.bold,
-                  fontSize: 12,
+                  fontSize: 11,
                 ),
               ),
             ),
           ],
         ),
         trailing: isAttended
-            ? const Icon(Icons.check, color: Colors.green)
+            ? Icon(
+                Icons.check_circle,
+                color: PatientTheme.primaryColor,
+                size: 28,
+              )
             : isMissed
-                ? null
-                : IconButton(
-                    icon: const Icon(Icons.check_circle_outline),
-                    color: Colors.green,
-                    onPressed: () => _markAppointmentAttended(appointment),
-                    tooltip: 'Mark as Attended',
-                  ),
+            ? null
+            : IconButton(
+                icon: Icon(
+                  Icons.check_circle_outline,
+                  color: PatientTheme.primaryColor,
+                ),
+                onPressed: () => _markAppointmentAttended(appointment),
+                tooltip: 'Mark as Attended',
+              ),
         isThreeLine: true,
       ),
     );
   }
 }
-

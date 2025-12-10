@@ -12,13 +12,17 @@ class AppointmentTrackingService {
     final user = _auth.currentUser;
     if (user == null) throw 'No user logged in';
 
-    final snapshot = await _prescriptionService.getPrescriptionsForPatient(user.uid).first;
+    final snapshot = await _prescriptionService
+        .getPrescriptionsForPatient(user.uid)
+        .first;
     final List<Map<String, dynamic>> allAppointments = [];
 
     for (var doc in snapshot.docs) {
       final data = doc.data() as Map<String, dynamic>;
       final prescriptionId = doc.id;
-      final appointments = List<Map<String, dynamic>>.from(data['appointments'] ?? []);
+      final appointments = List<Map<String, dynamic>>.from(
+        data['appointments'] ?? [],
+      );
 
       for (var appointment in appointments) {
         final title = appointment['title'] as String? ?? 'Untitled';
@@ -26,11 +30,12 @@ class AppointmentTrackingService {
         if (appointment['date'] is Timestamp) {
           dateTimestamp = appointment['date'] as Timestamp;
         }
-        
+
         if (dateTimestamp != null) {
           allAppointments.add({
             'prescriptionId': prescriptionId,
-            'appointmentId': '${prescriptionId}_${allAppointments.length}', // Unique ID
+            'appointmentId':
+                '${prescriptionId}_${allAppointments.length}', // Unique ID
             'title': title,
             'date': dateTimestamp.toDate(),
             'clinicianName': data['clinicianName'] as String? ?? 'Unknown',
@@ -101,21 +106,25 @@ class AppointmentTrackingService {
       final appointmentId = appointment['appointmentId'] as String;
       final appointmentDate = appointment['date'] as DateTime;
       final isAttended = await isAppointmentAttended(appointmentId);
-      
+
       final isUpcoming = appointmentDate.isAfter(today);
-      final isMissed = !isAttended && appointmentDate.isBefore(today) && 
-                      !appointmentDate.isAtSameMomentAs(today.copyWith(hour: 0, minute: 0, second: 0, millisecond: 0));
+      final isMissed =
+          !isAttended &&
+          appointmentDate.isBefore(today) &&
+          !appointmentDate.isAtSameMomentAs(
+            today.copyWith(hour: 0, minute: 0, second: 0, millisecond: 0),
+          );
 
       appointmentsWithStatus.add({
         ...appointment,
         'isAttended': isAttended,
         'isUpcoming': isUpcoming,
         'isMissed': isMissed,
-        'status': isAttended 
-            ? 'attended' 
-            : isUpcoming 
-                ? 'upcoming' 
-                : 'missed',
+        'status': isAttended
+            ? 'attended'
+            : isUpcoming
+            ? 'upcoming'
+            : 'missed',
       });
     }
 
@@ -142,9 +151,9 @@ class AppointmentTrackingService {
     final allAppointments = await getAppointmentsWithStatus();
     return allAppointments.where((appt) {
       final apptDate = appt['date'] as DateTime;
-      return (apptDate.isAfter(startDate) || apptDate.isAtSameMomentAs(startDate)) &&
-             (apptDate.isBefore(endDate) || apptDate.isAtSameMomentAs(endDate));
+      return (apptDate.isAfter(startDate) ||
+              apptDate.isAtSameMomentAs(startDate)) &&
+          (apptDate.isBefore(endDate) || apptDate.isAtSameMomentAs(endDate));
     }).toList();
   }
 }
-

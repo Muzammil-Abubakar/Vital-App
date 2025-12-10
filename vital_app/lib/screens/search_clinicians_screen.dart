@@ -137,7 +137,9 @@ class _SearchCliniciansScreenState extends State<SearchCliniciansScreen> {
                 // ignore: deprecated_member_use
                 RadioListTile<String>(
                   title: const Text('Extensive Info'),
-                  subtitle: const Text('Includes conditions, allergies, medications'),
+                  subtitle: const Text(
+                    'Includes conditions, allergies, medications',
+                  ),
                   value: 'extensive',
                   // ignore: deprecated_member_use
                   groupValue: selectedInfoType,
@@ -189,7 +191,9 @@ class _SearchCliniciansScreenState extends State<SearchCliniciansScreen> {
       if (confirmed['infoType'] == 'extensive') {
         if (patientProfile['chronicConditions'] != null) {
           if (patientProfile['chronicConditions'] is List) {
-            chronicConditions = List<String>.from(patientProfile['chronicConditions']);
+            chronicConditions = List<String>.from(
+              patientProfile['chronicConditions'],
+            );
           }
         }
         if (patientProfile['allergies'] != null) {

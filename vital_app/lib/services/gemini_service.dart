@@ -32,7 +32,9 @@ class GeminiService {
 
       // Use the prompt method according to documentation
       // Documentation shows: Gemini.instance.prompt(parts: [Part.text('...')])
-      final response = await Gemini.instance.prompt(parts: [Part.text(message.trim())]);
+      final response = await Gemini.instance.prompt(
+        parts: [Part.text(message.trim())],
+      );
 
       // According to documentation, access response via value?.output
       if (response?.output != null) {

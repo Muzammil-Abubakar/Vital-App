@@ -43,16 +43,16 @@ class MedicalDocumentService {
         .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        return {
-          'id': doc.id,
-          'name': data['name'] ?? '',
-          'date': (data['date'] as Timestamp?)?.toDate(),
-          'createdAt': (data['createdAt'] as Timestamp?)?.toDate(),
-        };
-      }).toList();
-    });
+          return snapshot.docs.map((doc) {
+            final data = doc.data();
+            return {
+              'id': doc.id,
+              'name': data['name'] ?? '',
+              'date': (data['date'] as Timestamp?)?.toDate(),
+              'createdAt': (data['createdAt'] as Timestamp?)?.toDate(),
+            };
+          }).toList();
+        });
   }
 
   // Get all medical documents (one-time fetch)
@@ -95,4 +95,3 @@ class MedicalDocumentService {
         .delete();
   }
 }
-

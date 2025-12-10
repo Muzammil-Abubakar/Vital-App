@@ -125,7 +125,8 @@ class PrescriptionRequestsScreen extends StatelessWidget {
               final message = data['message'] as String? ?? '';
               final createdAt = data['createdAt'] as Timestamp?;
               final infoType = data['infoType'] as String? ?? 'basic';
-              final chronicConditions = data['chronicConditions'] as List<dynamic>?;
+              final chronicConditions =
+                  data['chronicConditions'] as List<dynamic>?;
               final allergies = data['allergies'] as List<dynamic>?;
               final medications = data['medications'] as List<dynamic>?;
 
@@ -218,12 +219,15 @@ class PrescriptionRequestsScreen extends StatelessWidget {
                       Text('Info Type: ${infoType.toUpperCase()}'),
                       if (infoType == 'extensive') ...[
                         const SizedBox(height: 8),
-                        if (chronicConditions != null && chronicConditions.isNotEmpty) ...[
+                        if (chronicConditions != null &&
+                            chronicConditions.isNotEmpty) ...[
                           const Text(
                             'Chronic Conditions:',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          ...chronicConditions.map((condition) => Text('• $condition')),
+                          ...chronicConditions.map(
+                            (condition) => Text('• $condition'),
+                          ),
                           const SizedBox(height: 4),
                         ],
                         if (allergies != null && allergies.isNotEmpty) ...[
@@ -275,17 +279,20 @@ class PrescriptionRequestsScreen extends StatelessWidget {
                               onPressed: () async {
                                 final result = await Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (context) => GeneratePrescriptionScreen(
-                                      requestId: request.id,
-                                      requestData: data,
-                                    ),
+                                    builder: (context) =>
+                                        GeneratePrescriptionScreen(
+                                          requestId: request.id,
+                                          requestData: data,
+                                        ),
                                   ),
                                 );
                                 if (result == true && context.mounted) {
                                   // Prescription was generated successfully
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Prescription generated successfully!'),
+                                      content: Text(
+                                        'Prescription generated successfully!',
+                                      ),
                                       backgroundColor: Colors.green,
                                     ),
                                   );

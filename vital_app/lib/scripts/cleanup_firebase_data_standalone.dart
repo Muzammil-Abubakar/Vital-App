@@ -10,17 +10,19 @@ import 'package:vital_app/main.dart' as app;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  
+
   final firestore = FirebaseFirestore.instance;
   final auth = FirebaseAuth.instance;
 
-  print('⚠️  WARNING: This will delete ALL clinicians, patients, and prescription requests!');
+  print(
+    '⚠️  WARNING: This will delete ALL clinicians, patients, and prescription requests!',
+  );
   print('Make sure you are logged in as an admin user.');
   print('Press Enter to continue or Ctrl+C to cancel...');
-  
+
   // Wait for user input (in a real scenario, you'd use stdin)
   await Future.delayed(const Duration(seconds: 3));
-  
+
   try {
     print('\n🔐 Checking authentication...');
     final user = auth.currentUser;
@@ -35,7 +37,9 @@ void main() async {
 
     // Delete all prescription requests
     print('Deleting prescription requests...');
-    final requestsSnapshot = await firestore.collection('prescription_requests').get();
+    final requestsSnapshot = await firestore
+        .collection('prescription_requests')
+        .get();
     int requestCount = 0;
     final batch1 = firestore.batch();
     for (var doc in requestsSnapshot.docs) {
@@ -95,7 +99,7 @@ void main() async {
         final subSnapshot = await patientDoc.reference
             .collection(subcollection)
             .get();
-        
+
         if (subSnapshot.docs.isNotEmpty) {
           final batch = firestore.batch();
           for (var subDoc in subSnapshot.docs) {
@@ -130,11 +134,9 @@ void main() async {
     print('  - $clinicianCount clinicians');
     print('  - $patientCount patients');
     print('\nYou can now close this script and test with fresh data.');
-
   } catch (e) {
     print('\n❌ Error during cleanup: $e');
     print('Some data may have been partially deleted.');
     print('Check Firebase Console to verify deletion.');
   }
 }
-

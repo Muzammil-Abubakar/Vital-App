@@ -3,9 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 /// WARNING: This script will DELETE ALL data from:
 /// - clinicians collection
-/// - patients collection  
+/// - patients collection
 /// - prescription_requests collection
-/// 
+///
 /// Run this script with: dart run lib/scripts/cleanup_firebase_data.dart
 /// Make sure you're authenticated as an admin user
 
@@ -13,11 +13,13 @@ Future<void> main() async {
   final firestore = FirebaseFirestore.instance;
   final auth = FirebaseAuth.instance;
 
-  print('⚠️  WARNING: This will delete ALL clinicians, patients, and prescription requests!');
+  print(
+    '⚠️  WARNING: This will delete ALL clinicians, patients, and prescription requests!',
+  );
   print('Press Ctrl+C to cancel, or wait 5 seconds to continue...');
-  
+
   await Future.delayed(const Duration(seconds: 5));
-  
+
   try {
     print('\n🔐 Checking authentication...');
     final user = auth.currentUser;
@@ -31,7 +33,9 @@ Future<void> main() async {
 
     // Delete all prescription requests
     print('Deleting prescription requests...');
-    final requestsSnapshot = await firestore.collection('prescription_requests').get();
+    final requestsSnapshot = await firestore
+        .collection('prescription_requests')
+        .get();
     int requestCount = 0;
     for (var doc in requestsSnapshot.docs) {
       await doc.reference.delete();
@@ -85,7 +89,7 @@ Future<void> main() async {
         final subSnapshot = await patientDoc.reference
             .collection(subcollection)
             .get();
-        
+
         for (var subDoc in subSnapshot.docs) {
           // Handle nested subcollections (e.g., medication_checkins/{dateKey}/checkins)
           if (subcollection == 'medication_checkins') {
@@ -111,10 +115,8 @@ Future<void> main() async {
     print('  - $requestCount prescription requests');
     print('  - $clinicianCount clinicians');
     print('  - $patientCount patients');
-
   } catch (e) {
     print('\n❌ Error during cleanup: $e');
     print('Some data may have been partially deleted.');
   }
 }
-

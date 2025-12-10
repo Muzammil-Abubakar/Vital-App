@@ -6,7 +6,8 @@ class MedicationChecklistScreen extends StatefulWidget {
   const MedicationChecklistScreen({super.key});
 
   @override
-  State<MedicationChecklistScreen> createState() => _MedicationChecklistScreenState();
+  State<MedicationChecklistScreen> createState() =>
+      _MedicationChecklistScreenState();
 }
 
 class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
@@ -31,15 +32,16 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
 
   Future<void> _loadData({bool loadMissed = true}) async {
     if (!mounted) return;
-    
+
     setState(() {
       _isLoading = true;
     });
 
     try {
       // Load today's status first (faster)
-      final todayStatus = await _medicationTrackingService.getMedicationStatusForDate(_selectedDate);
-      
+      final todayStatus = await _medicationTrackingService
+          .getMedicationStatusForDate(_selectedDate);
+
       if (mounted) {
         setState(() {
           _todayStatus = todayStatus;
@@ -50,7 +52,8 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
       // Load missed medications in background (slower, can be async)
       if (loadMissed && mounted) {
         try {
-          final missed = await _medicationTrackingService.getMissedMedications();
+          final missed = await _medicationTrackingService
+              .getMissedMedications();
           if (mounted) {
             setState(() {
               _missedMedications = missed;
@@ -104,8 +107,9 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
       );
 
       // Only reload status for the selected date, not everything
-      final todayStatus = await _medicationTrackingService.getMedicationStatusForDate(_selectedDate);
-      
+      final todayStatus = await _medicationTrackingService
+          .getMedicationStatusForDate(_selectedDate);
+
       if (mounted) {
         setState(() {
           _todayStatus = todayStatus;
@@ -142,7 +146,9 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
       setState(() {
         _selectedDate = picked;
       });
-      await _loadData(loadMissed: false); // Don't reload missed on date change for speed
+      await _loadData(
+        loadMissed: false,
+      ); // Don't reload missed on date change for speed
     }
   }
 
@@ -187,7 +193,10 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                           padding: const EdgeInsets.all(16),
                           child: Row(
                             children: [
-                              const Icon(Icons.calendar_today, color: Colors.indigo),
+                              const Icon(
+                                Icons.calendar_today,
+                                color: Colors.indigo,
+                              ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
@@ -202,7 +211,9 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      DateFormat('MMM dd, yyyy').format(_selectedDate),
+                                      DateFormat(
+                                        'MMM dd, yyyy',
+                                      ).format(_selectedDate),
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -235,7 +246,11 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                                   ),
                                 ),
                               const SizedBox(width: 8),
-                              const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                              const Icon(
+                                Icons.arrow_forward_ios,
+                                size: 16,
+                                color: Colors.grey,
+                              ),
                             ],
                           ),
                         ),
@@ -245,16 +260,25 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                     // Missed Medications Section - Improved colors
                     if (_missedMedications.isNotEmpty) ...[
                       Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.orange.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                          border: Border.all(
+                            color: Colors.orange.withValues(alpha: 0.3),
+                          ),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.warning_rounded, color: Colors.orange, size: 24),
+                            const Icon(
+                              Icons.warning_rounded,
+                              color: Colors.orange,
+                              size: 24,
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
@@ -278,7 +302,9 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                           color: Colors.orange.withValues(alpha: 0.08),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(color: Colors.orange.withValues(alpha: 0.2)),
+                            side: BorderSide(
+                              color: Colors.orange.withValues(alpha: 0.2),
+                            ),
                           ),
                           child: ListTile(
                             leading: Container(
@@ -287,11 +313,17 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                                 color: Colors.orange.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(Icons.medication, color: Colors.orange, size: 20),
+                              child: const Icon(
+                                Icons.medication,
+                                color: Colors.orange,
+                                size: 20,
+                              ),
                             ),
                             title: Text(
                               missed['medicineName'] as String,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,24 +331,40 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                                 const SizedBox(height: 4),
                                 Text(
                                   'Missed on ${DateFormat('MMM dd, yyyy').format(missed['date'] as DateTime)}',
-                                  style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[700],
+                                  ),
                                 ),
                                 Text(
                                   'Time ${(missed['timeIndex'] as int) + 1} of ${missed['timesPerDay']}',
-                                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
                                 ),
                               ],
                             ),
-                            trailing: const Icon(Icons.error_outline, color: Colors.orange, size: 20),
+                            trailing: const Icon(
+                              Icons.error_outline,
+                              color: Colors.orange,
+                              size: 20,
+                            ),
                           ),
                         );
                       }),
                       if (_missedMedications.length > 5)
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           child: Text(
                             '... and ${_missedMedications.length - 5} more missed medications',
-                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -325,7 +373,10 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
 
                     // Today's Medications - Improved header
                     Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: Colors.indigo.withValues(alpha: 0.1),
@@ -339,13 +390,18 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                               color: Colors.indigo.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Icon(Icons.medication, color: Colors.indigo, size: 20),
+                            child: const Icon(
+                              Icons.medication,
+                              color: Colors.indigo,
+                              size: 20,
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               _selectedDate.day == DateTime.now().day &&
-                                      _selectedDate.month == DateTime.now().month &&
+                                      _selectedDate.month ==
+                                          DateTime.now().month &&
                                       _selectedDate.year == DateTime.now().year
                                   ? "Today's Medications"
                                   : 'Medications for Selected Date',
@@ -373,14 +429,20 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                         ),
                       )
                     else
-                      ...(_todayStatus!['medications'] as List<dynamic>).map((medication) {
-                        final medicineName = medication['medicineName'] as String;
+                      ...(_todayStatus!['medications'] as List<dynamic>).map((
+                        medication,
+                      ) {
+                        final medicineName =
+                            medication['medicineName'] as String;
                         final timesPerDay = medication['timesPerDay'] as int;
-                        final prescriptionId = medication['prescriptionId'] as String;
-                        final timeSlots = medication['timeSlots'] as List<dynamic>;
+                        final prescriptionId =
+                            medication['prescriptionId'] as String;
+                        final timeSlots =
+                            medication['timeSlots'] as List<dynamic>;
                         final allTaken = medication['allTaken'] == true;
                         final hasMissed = medication['hasMissed'] == true;
-                        final clinicianName = medication['clinicianName'] as String;
+                        final clinicianName =
+                            medication['clinicianName'] as String;
 
                         return Card(
                           margin: const EdgeInsets.symmetric(
@@ -394,16 +456,16 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                               color: allTaken
                                   ? Colors.teal.withValues(alpha: 0.3)
                                   : hasMissed
-                                      ? Colors.orange.withValues(alpha: 0.3)
-                                      : Colors.grey.withValues(alpha: 0.2),
+                                  ? Colors.orange.withValues(alpha: 0.3)
+                                  : Colors.grey.withValues(alpha: 0.2),
                               width: 1.5,
                             ),
                           ),
                           color: allTaken
                               ? Colors.teal.withValues(alpha: 0.08)
                               : hasMissed
-                                  ? Colors.orange.withValues(alpha: 0.08)
-                                  : Colors.grey.withValues(alpha: 0.05),
+                              ? Colors.orange.withValues(alpha: 0.08)
+                              : Colors.grey.withValues(alpha: 0.05),
                           child: ExpansionTile(
                             leading: Container(
                               padding: const EdgeInsets.all(8),
@@ -411,21 +473,21 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                                 color: allTaken
                                     ? Colors.teal.withValues(alpha: 0.2)
                                     : hasMissed
-                                        ? Colors.orange.withValues(alpha: 0.2)
-                                        : Colors.grey.withValues(alpha: 0.2),
+                                    ? Colors.orange.withValues(alpha: 0.2)
+                                    : Colors.grey.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Icon(
                                 allTaken
                                     ? Icons.check_circle
                                     : hasMissed
-                                        ? Icons.error_outline
-                                        : Icons.radio_button_unchecked,
+                                    ? Icons.error_outline
+                                    : Icons.radio_button_unchecked,
                                 color: allTaken
                                     ? Colors.teal
                                     : hasMissed
-                                        ? Colors.orange
-                                        : Colors.grey,
+                                    ? Colors.orange
+                                    : Colors.grey,
                                 size: 20,
                               ),
                             ),
@@ -443,12 +505,18 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                                 children: [
                                   Text(
                                     'Prescribed by: $clinicianName',
-                                    style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey[700],
+                                    ),
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
                                     '$timesPerDay time${timesPerDay > 1 ? 's' : ''} per day',
-                                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                    ),
                                   ),
                                 ],
                               ),
@@ -457,86 +525,133 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
                               Padding(
                                 padding: const EdgeInsets.all(16),
                                 child: Column(
-                                  children: timeSlots.asMap().entries.map((entry) {
+                                  children: timeSlots.asMap().entries.map((
+                                    entry,
+                                  ) {
                                     final index = entry.key;
-                                    final slot = entry.value as Map<String, dynamic>;
+                                    final slot =
+                                        entry.value as Map<String, dynamic>;
                                     final isTaken = slot['isTaken'] == true;
                                     final isMissed = slot['isMissed'] == true;
-                                    final canCheck = _selectedDate.day == DateTime.now().day &&
-                                        _selectedDate.month == DateTime.now().month &&
-                                        _selectedDate.year == DateTime.now().year &&
+                                    final canCheck =
+                                        _selectedDate.day ==
+                                            DateTime.now().day &&
+                                        _selectedDate.month ==
+                                            DateTime.now().month &&
+                                        _selectedDate.year ==
+                                            DateTime.now().year &&
                                         !isTaken;
 
                                     return Container(
                                       margin: const EdgeInsets.only(bottom: 8),
                                       decoration: BoxDecoration(
                                         color: isTaken
-                                            ? Colors.teal.withValues(alpha: 0.15)
+                                            ? Colors.teal.withValues(
+                                                alpha: 0.15,
+                                              )
                                             : isMissed
-                                                ? Colors.orange.withValues(alpha: 0.15)
-                                                : Colors.grey.withValues(alpha: 0.08),
+                                            ? Colors.orange.withValues(
+                                                alpha: 0.15,
+                                              )
+                                            : Colors.grey.withValues(
+                                                alpha: 0.08,
+                                              ),
                                         borderRadius: BorderRadius.circular(10),
                                         border: Border.all(
                                           color: isTaken
-                                              ? Colors.teal.withValues(alpha: 0.3)
+                                              ? Colors.teal.withValues(
+                                                  alpha: 0.3,
+                                                )
                                               : isMissed
-                                                  ? Colors.orange.withValues(alpha: 0.3)
-                                                  : Colors.grey.withValues(alpha: 0.2),
+                                              ? Colors.orange.withValues(
+                                                  alpha: 0.3,
+                                                )
+                                              : Colors.grey.withValues(
+                                                  alpha: 0.2,
+                                                ),
                                         ),
                                       ),
                                       child: CheckboxListTile(
                                         value: isTaken,
                                         onChanged: canCheck
                                             ? (value) => _toggleMedication(
-                                                  prescriptionId: prescriptionId,
-                                                  medicineName: medicineName,
-                                                  timeIndex: index,
-                                                  isCurrentlyTaken: isTaken,
-                                                )
+                                                prescriptionId: prescriptionId,
+                                                medicineName: medicineName,
+                                                timeIndex: index,
+                                                isCurrentlyTaken: isTaken,
+                                              )
                                             : null,
                                         title: Text(
                                           'Time ${index + 1} of $timesPerDay',
-                                          style: const TextStyle(fontWeight: FontWeight.w500),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
                                         subtitle: Padding(
-                                          padding: const EdgeInsets.only(top: 4),
+                                          padding: const EdgeInsets.only(
+                                            top: 4,
+                                          ),
                                           child: isTaken
                                               ? Row(
                                                   children: [
-                                                    Icon(Icons.check_circle, size: 14, color: Colors.teal[700]),
+                                                    Icon(
+                                                      Icons.check_circle,
+                                                      size: 14,
+                                                      color: Colors.teal[700],
+                                                    ),
                                                     const SizedBox(width: 4),
                                                     Text(
                                                       'Taken',
-                                                      style: TextStyle(color: Colors.teal[700], fontSize: 12),
+                                                      style: TextStyle(
+                                                        color: Colors.teal[700],
+                                                        fontSize: 12,
+                                                      ),
                                                     ),
                                                   ],
                                                 )
                                               : isMissed
-                                                  ? Row(
-                                                      children: [
-                                                        Icon(Icons.error_outline, size: 14, color: Colors.orange[700]),
-                                                        const SizedBox(width: 4),
-                                                        Text(
-                                                          'Missed',
-                                                          style: TextStyle(color: Colors.orange[700], fontSize: 12),
-                                                        ),
-                                                      ],
-                                                    )
-                                                  : Row(
-                                                      children: [
-                                                        Icon(Icons.schedule, size: 14, color: Colors.grey[600]),
-                                                        const SizedBox(width: 4),
-                                                        Text(
-                                                          'Pending',
-                                                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                                                        ),
-                                                      ],
+                                              ? Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.error_outline,
+                                                      size: 14,
+                                                      color: Colors.orange[700],
                                                     ),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      'Missed',
+                                                      style: TextStyle(
+                                                        color:
+                                                            Colors.orange[700],
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              : Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.schedule,
+                                                      size: 14,
+                                                      color: Colors.grey[600],
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      'Pending',
+                                                      style: TextStyle(
+                                                        color: Colors.grey[600],
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                         ),
                                         activeColor: Colors.teal,
                                         checkColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
                                         ),
                                       ),
                                     );
@@ -556,4 +671,3 @@ class _MedicationChecklistScreenState extends State<MedicationChecklistScreen> {
     );
   }
 }
-

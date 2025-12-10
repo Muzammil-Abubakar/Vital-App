@@ -166,7 +166,7 @@ class PrescriptionService {
     final patientPrescriptionData = Map<String, dynamic>.from(prescriptionData);
     patientPrescriptionData['approved'] = false; // Patient needs to approve
     patientPrescriptionData['rejected'] = false;
-    
+
     await _firestore
         .collection('patients')
         .doc(patientId)
@@ -206,10 +206,7 @@ class PrescriptionService {
         .doc(user.uid)
         .collection('prescriptions')
         .doc(prescriptionId)
-        .update({
-      'approved': true,
-      'approvedAt': FieldValue.serverTimestamp(),
-    });
+        .update({'approved': true, 'approvedAt': FieldValue.serverTimestamp()});
   }
 
   // Reject prescription (patient action)
@@ -223,10 +220,10 @@ class PrescriptionService {
         .collection('prescriptions')
         .doc(prescriptionId)
         .update({
-      'approved': false,
-      'rejected': true,
-      'rejectedAt': FieldValue.serverTimestamp(),
-    });
+          'approved': false,
+          'rejected': true,
+          'rejectedAt': FieldValue.serverTimestamp(),
+        });
   }
 
   // Get current user

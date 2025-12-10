@@ -53,7 +53,7 @@ class AIAdherenceService {
     if (profile == null) {
       throw 'User profile not found. Please complete your profile first.';
     }
-    
+
     final profileData = {
       'age': profile['age'],
       'gender': profile['gender'],
@@ -71,7 +71,9 @@ class AIAdherenceService {
 
     // 2. Get daily tracking (medications, appointments)
     final dailyTracking = await _dailyTrackingService.getDailyTracking(date);
-    final medications = dailyTracking?['medications'] as Map<String, dynamic>? ?? <String, dynamic>{};
+    final medications =
+        dailyTracking?['medications'] as Map<String, dynamic>? ??
+        <String, dynamic>{};
 
     // Count medication adherence
     int totalMedicationSlots = 0;
@@ -107,17 +109,21 @@ class AIAdherenceService {
     // 3. Get health metrics for the date
     final healthData = await _healthDataService.getHealthDataForDate(dateKey);
     final steps = healthData?['steps'] as int? ?? 0;
-    final caloriesBurned = (healthData?['caloriesBurned'] as num?)?.toDouble() ?? 0.0;
+    final caloriesBurned =
+        (healthData?['caloriesBurned'] as num?)?.toDouble() ?? 0.0;
     final hoursSlept = (healthData?['hoursSlept'] as num?)?.toDouble() ?? 0.0;
     final heartRate = (healthData?['heartRate'] as num?)?.toDouble() ?? 0.0;
 
     // 4. Get food data for the date
     final foodData = await _foodDataService.getFoodDataForDate(dateKey);
-    final totalCaloriesEaten = (foodData?['totalCalories'] as num?)?.toDouble() ?? 0.0;
+    final totalCaloriesEaten =
+        (foodData?['totalCalories'] as num?)?.toDouble() ?? 0.0;
     final foodsEaten = foodData?['foods'] ?? [];
 
     // 5. Get exercise data for the date
-    final exerciseData = await _exerciseDataService.getExerciseDataForDate(dateKey);
+    final exerciseData = await _exerciseDataService.getExerciseDataForDate(
+      dateKey,
+    );
     final exercisesDone = exerciseData?['exercises'] ?? [];
 
     // 6. Get recommended foods and exercises from prescriptions
@@ -143,20 +149,27 @@ class AIAdherenceService {
         final dateOnly = DateTime(date.year, date.month, date.day);
 
         // Check if prescription is active on this date
-        final medicines = List<Map<String, dynamic>>.from(data['medicines'] ?? []);
+        final medicines = List<Map<String, dynamic>>.from(
+          data['medicines'] ?? [],
+        );
         bool isActive = false;
         for (var med in medicines) {
           final duration = med['duration'] as int? ?? 0;
           final endDate = prescriptionDateOnly.add(Duration(days: duration));
-          if (dateOnly.isBefore(endDate) || dateOnly.isAtSameMomentAs(endDate)) {
+          if (dateOnly.isBefore(endDate) ||
+              dateOnly.isAtSameMomentAs(endDate)) {
             isActive = true;
             break;
           }
         }
 
         if (isActive) {
-          recommendedFoods.addAll(List<String>.from(data['recommendedFoods'] ?? []));
-          recommendedExercises.addAll(List<String>.from(data['recommendedExercises'] ?? []));
+          recommendedFoods.addAll(
+            List<String>.from(data['recommendedFoods'] ?? []),
+          );
+          recommendedExercises.addAll(
+            List<String>.from(data['recommendedExercises'] ?? []),
+          );
         }
       }
     }
@@ -197,7 +210,7 @@ class AIAdherenceService {
     if (profile == null) {
       throw 'User profile not found. Please complete your profile first.';
     }
-    
+
     final profileData = {
       'age': profile['age'],
       'gender': profile['gender'],
@@ -215,7 +228,9 @@ class AIAdherenceService {
 
     // 2. Get daily tracking (medications, appointments)
     final dailyTracking = await _dailyTrackingService.getDailyTracking(date);
-    final medications = dailyTracking?['medications'] as Map<String, dynamic>? ?? <String, dynamic>{};
+    final medications =
+        dailyTracking?['medications'] as Map<String, dynamic>? ??
+        <String, dynamic>{};
 
     // Count medication adherence
     int totalMedicationSlots = 0;
@@ -251,17 +266,21 @@ class AIAdherenceService {
     // 3. Get health metrics for the date
     final healthData = await _healthDataService.getHealthDataForDate(dateKey);
     final steps = healthData?['steps'] as int? ?? 0;
-    final caloriesBurned = (healthData?['caloriesBurned'] as num?)?.toDouble() ?? 0.0;
+    final caloriesBurned =
+        (healthData?['caloriesBurned'] as num?)?.toDouble() ?? 0.0;
     final hoursSlept = (healthData?['hoursSlept'] as num?)?.toDouble() ?? 0.0;
     final heartRate = (healthData?['heartRate'] as num?)?.toDouble() ?? 0.0;
 
     // 4. Get food data for the date
     final foodData = await _foodDataService.getFoodDataForDate(dateKey);
-    final totalCaloriesEaten = (foodData?['totalCalories'] as num?)?.toDouble() ?? 0.0;
+    final totalCaloriesEaten =
+        (foodData?['totalCalories'] as num?)?.toDouble() ?? 0.0;
     final foodsEaten = foodData?['foods'] ?? [];
 
     // 5. Get exercise data for the date
-    final exerciseData = await _exerciseDataService.getExerciseDataForDate(dateKey);
+    final exerciseData = await _exerciseDataService.getExerciseDataForDate(
+      dateKey,
+    );
     final exercisesDone = exerciseData?['exercises'] ?? [];
 
     // 6. Get recommended foods and exercises from prescriptions
@@ -287,20 +306,27 @@ class AIAdherenceService {
         final dateOnly = DateTime(date.year, date.month, date.day);
 
         // Check if prescription is active on this date
-        final medicines = List<Map<String, dynamic>>.from(data['medicines'] ?? []);
+        final medicines = List<Map<String, dynamic>>.from(
+          data['medicines'] ?? [],
+        );
         bool isActive = false;
         for (var med in medicines) {
           final duration = med['duration'] as int? ?? 0;
           final endDate = prescriptionDateOnly.add(Duration(days: duration));
-          if (dateOnly.isBefore(endDate) || dateOnly.isAtSameMomentAs(endDate)) {
+          if (dateOnly.isBefore(endDate) ||
+              dateOnly.isAtSameMomentAs(endDate)) {
             isActive = true;
             break;
           }
         }
 
         if (isActive) {
-          recommendedFoods.addAll(List<String>.from(data['recommendedFoods'] ?? []));
-          recommendedExercises.addAll(List<String>.from(data['recommendedExercises'] ?? []));
+          recommendedFoods.addAll(
+            List<String>.from(data['recommendedFoods'] ?? []),
+          );
+          recommendedExercises.addAll(
+            List<String>.from(data['recommendedExercises'] ?? []),
+          );
         }
       }
     }
@@ -334,7 +360,8 @@ class AIAdherenceService {
       String responseText = '';
       if (response?.output != null && response!.output!.isNotEmpty) {
         responseText = response.output!;
-      } else if (response?.content?.parts != null && response!.content!.parts!.isNotEmpty) {
+      } else if (response?.content?.parts != null &&
+          response!.content!.parts!.isNotEmpty) {
         final lastPart = response.content!.parts!.last;
         if (lastPart is TextPart && lastPart.text.isNotEmpty) {
           responseText = lastPart.text;
@@ -377,7 +404,9 @@ class AIAdherenceService {
   }) {
     final dateStr = DateFormat('MMMM dd, yyyy').format(date);
     final medicationAdherenceRate = totalMedicationSlots > 0
-        ? (checkedMedicationSlots / totalMedicationSlots * 100).toStringAsFixed(1)
+        ? (checkedMedicationSlots / totalMedicationSlots * 100).toStringAsFixed(
+            1,
+          )
         : '0.0';
 
     return '''You are a healthcare AI assistant analyzing patient adherence to their treatment plan. Analyze the following data and provide a strict JSON response.
@@ -435,34 +464,34 @@ IMPORTANT: Return ONLY valid JSON. No explanations, no markdown formatting, no c
   Map<String, dynamic> _parseGeminiResponse(String response) {
     // Clean the response - remove markdown code blocks if present
     String cleaned = response.trim();
-    
+
     // Remove markdown code blocks
     if (cleaned.startsWith('```json')) {
       cleaned = cleaned.substring(7);
     } else if (cleaned.startsWith('```')) {
       cleaned = cleaned.substring(3);
     }
-    
+
     if (cleaned.endsWith('```')) {
       cleaned = cleaned.substring(0, cleaned.length - 3);
     }
-    
+
     cleaned = cleaned.trim();
 
     // Try to find JSON object
     final jsonStart = cleaned.indexOf('{');
     final jsonEnd = cleaned.lastIndexOf('}');
-    
+
     if (jsonStart == -1 || jsonEnd == -1 || jsonEnd <= jsonStart) {
       throw 'Invalid JSON response from AI. Response: ${response.substring(0, response.length > 200 ? 200 : response.length)}';
     }
 
     final jsonStr = cleaned.substring(jsonStart, jsonEnd + 1);
-    
+
     try {
       // Use dart:convert for proper JSON parsing (handles escaped quotes, etc.)
       final decoded = json.decode(jsonStr) as Map<String, dynamic>;
-      
+
       return {
         'title': decoded['title'] as String? ?? 'Adherence Report',
         'score': (decoded['score'] as num?)?.toDouble() ?? 5.0,
@@ -472,18 +501,23 @@ IMPORTANT: Return ONLY valid JSON. No explanations, no markdown formatting, no c
       // If JSON parsing fails, try regex as fallback
       try {
         final Map<String, dynamic> result = {};
-        
+
         // Extract title - handle escaped quotes
         final titlePattern = RegExp(r'"title"\s*:\s*"((?:[^"\\]|\\.)*)"');
         final titleMatch = titlePattern.firstMatch(jsonStr);
         if (titleMatch != null) {
-          result['title'] = titleMatch.group(1)!.replaceAll('\\"', '"').replaceAll('\\n', '\n');
+          result['title'] = titleMatch
+              .group(1)!
+              .replaceAll('\\"', '"')
+              .replaceAll('\\n', '\n');
         } else {
           result['title'] = 'Adherence Report';
         }
 
         // Extract score
-        final scoreMatch = RegExp(r'"score"\s*:\s*(\d+(?:\.\d+)?)').firstMatch(jsonStr);
+        final scoreMatch = RegExp(
+          r'"score"\s*:\s*(\d+(?:\.\d+)?)',
+        ).firstMatch(jsonStr);
         if (scoreMatch != null) {
           result['score'] = double.parse(scoreMatch.group(1)!);
         } else {
@@ -494,7 +528,10 @@ IMPORTANT: Return ONLY valid JSON. No explanations, no markdown formatting, no c
         final reportPattern = RegExp(r'"report"\s*:\s*"((?:[^"\\]|\\.)*)"');
         final reportMatch = reportPattern.firstMatch(jsonStr);
         if (reportMatch != null) {
-          result['report'] = reportMatch.group(1)!.replaceAll('\\"', '"').replaceAll('\\n', '\n');
+          result['report'] = reportMatch
+              .group(1)!
+              .replaceAll('\\"', '"')
+              .replaceAll('\\n', '\n');
         } else {
           result['report'] = 'Unable to generate report.';
         }
@@ -507,24 +544,27 @@ IMPORTANT: Return ONLY valid JSON. No explanations, no markdown formatting, no c
     }
   }
 
-  Future<void> _storeAdherenceReport(DateTime date, Map<String, dynamic> reportData) async {
+  Future<void> _storeAdherenceReport(
+    DateTime date,
+    Map<String, dynamic> reportData,
+  ) async {
     final user = _auth.currentUser;
     if (user == null) throw 'No user logged in';
 
     final dateKey = _getDateKey(date);
-    
+
     await _firestore
         .collection('patients')
         .doc(user.uid)
         .collection('ai_reports')
         .doc(dateKey)
         .set({
-      'date': Timestamp.fromDate(date),
-      'title': reportData['title'],
-      'score': reportData['score'],
-      'report': reportData['report'],
-      'generatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+          'date': Timestamp.fromDate(date),
+          'title': reportData['title'],
+          'score': reportData['score'],
+          'report': reportData['report'],
+          'generatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
   }
 
   // Get adherence report for a specific date
@@ -565,17 +605,16 @@ IMPORTANT: Return ONLY valid JSON. No explanations, no markdown formatting, no c
         .doc(dateKey)
         .snapshots()
         .map((doc) {
-      if (!doc.exists) return null;
+          if (!doc.exists) return null;
 
-      final data = doc.data() as Map<String, dynamic>;
-      return {
-        'date': date,
-        'title': data['title'],
-        'score': data['score'],
-        'report': data['report'],
-        'generatedAt': (data['generatedAt'] as Timestamp?)?.toDate(),
-      };
-    });
+          final data = doc.data() as Map<String, dynamic>;
+          return {
+            'date': date,
+            'title': data['title'],
+            'score': data['score'],
+            'report': data['report'],
+            'generatedAt': (data['generatedAt'] as Timestamp?)?.toDate(),
+          };
+        });
   }
 }
-

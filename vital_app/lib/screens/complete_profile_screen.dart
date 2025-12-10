@@ -366,24 +366,15 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   items: const [
                     DropdownMenuItem(
                       value: 'sedentary',
-                      child: Text(
-                        'Sedentary',
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      child: Text('Sedentary', overflow: TextOverflow.ellipsis),
                     ),
                     DropdownMenuItem(
                       value: 'moderate',
-                      child: Text(
-                        'Moderate',
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      child: Text('Moderate', overflow: TextOverflow.ellipsis),
                     ),
                     DropdownMenuItem(
                       value: 'active',
-                      child: Text(
-                        'Active',
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      child: Text('Active', overflow: TextOverflow.ellipsis),
                     ),
                     DropdownMenuItem(
                       value: 'very_active',
