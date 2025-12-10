@@ -201,6 +201,18 @@ service cloud.firestore {
         allow delete: if false;
       }
       
+      // AI Reports Subcollection
+      match /ai_reports/{dateKey} {
+        // Patients can read and write their own AI reports
+        // Clinicians can read patient AI reports (for medical records)
+        allow read: if isAuthenticated() && (isOwner(patientId) || isClinician());
+        // Patients can create/update their own AI reports
+        allow create, update: if isAuthenticated() && isOwner(patientId) &&
+                                request.resource.data.keys().hasAll(['date', 'title', 'score', 'report', 'generatedAt']);
+        // No deletes allowed (for audit trail)
+        allow delete: if false;
+      }
+      
       // Appointment Attendance Subcollection (legacy - kept for backward compatibility)
       match /appointment_attendance/{appointmentId} {
         // Patients can read and write their own appointment attendance

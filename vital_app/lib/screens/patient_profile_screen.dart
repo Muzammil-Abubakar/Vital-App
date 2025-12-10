@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/patient_migration_service.dart';
-import 'chat_screen.dart';
 import 'user_type_selection_screen.dart';
 import 'search_clinicians_screen.dart';
 import 'complete_profile_screen.dart';
@@ -12,6 +11,7 @@ import 'medical_documents_screen.dart';
 import 'medication_checklist_screen.dart';
 import 'appointments_calendar_screen.dart';
 import 'prescription_approval_screen.dart';
+import 'ai_adherence_screen.dart';
 
 class PatientProfileScreen extends StatefulWidget {
   const PatientProfileScreen({super.key});
@@ -293,22 +293,22 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                     if (_userProfile!['profiled'] != true)
                       const SizedBox(height: 16),
 
-                    // Chat Button (only if profiled)
+                    // AI Adherence Button (only if profiled)
                     ElevatedButton.icon(
                       onPressed: _userProfile!['profiled'] == true
                           ? () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) => const ChatScreen(),
+                                  builder: (context) => const AIAdherenceScreen(),
                                 ),
                               );
                             }
                           : null,
-                      icon: const Icon(Icons.chat),
+                      icon: const Icon(Icons.auto_awesome),
                       label: Text(
                         _userProfile!['profiled'] == true
-                            ? 'Open Chat'
-                            : 'Complete Profile to Use Chat',
+                            ? 'AI Adherence Report'
+                            : 'Complete Profile to Use AI Adherence',
                         style: const TextStyle(fontSize: 16),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -317,7 +317,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         backgroundColor: _userProfile!['profiled'] == true
-                            ? Colors.green
+                            ? Colors.purple
                             : Colors.grey,
                         foregroundColor: Colors.white,
                       ),

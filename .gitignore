@@ -2,6 +2,10 @@
 .env
 .env.local
 .env.*.local
+**/.env
+**/.env.local
+vital_app/.env
+vital_app/.env.local
 
 # Firebase
 .firebase/
