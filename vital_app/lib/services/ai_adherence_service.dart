@@ -353,6 +353,9 @@ class AIAdherenceService {
 
     // Call Gemini API
     try {
+      // Ensure initialization before accessing instance (called again here for safety)
+      _ensureInitialized();
+      
       final gemini = Gemini.instance;
       final response = await gemini.prompt(parts: [Part.text(prompt.trim())]);
 
@@ -380,6 +383,12 @@ class AIAdherenceService {
 
       return jsonResponse;
     } catch (e) {
+      // Handle NotInitialized exception specifically
+      final errorString = e.toString();
+      if (errorString.contains('NotInitialized') || 
+          errorString.contains('not initialized')) {
+        throw 'Gemini API not initialized. Please check your API_KEY in the .env file.';
+      }
       throw 'Failed to generate adherence report: $e';
     }
   }

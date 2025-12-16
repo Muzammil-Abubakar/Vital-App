@@ -805,7 +805,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
               enabled: _userProfile!['profiled'] == true,
               onTap: () {
                 if (_userProfile!['profiled'] == true) {
-                  Navigator.of(context).pushNamed('/ai-adherence');
+                  Navigator.of(context, rootNavigator: false).pushNamed('/ai-adherence');
                 }
               },
             ),
@@ -819,7 +819,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                 final profile = _userProfile;
                 if (profile != null) {
                   if (!mounted) return;
-                  Navigator.of(context)
+                  Navigator.of(context, rootNavigator: false)
                       .pushNamed('/complete-profile', arguments: profile)
                       .then((_) {
                         if (mounted) {
